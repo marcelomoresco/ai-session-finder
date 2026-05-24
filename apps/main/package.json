@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "main": "dist/main/index.js",
+  "dependencies": {
+    "@asf/contracts": "workspace:*",
+    "@asf/domain": "workspace:*"
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",

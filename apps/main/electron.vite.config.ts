@@ -10,14 +10,14 @@ const rendererRoot = resolve(__dirname, '../renderer');
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [externalizeDepsPlugin({ exclude: ['@asf/domain', '@asf/contracts'] })],
     build: {
       outDir: resolve(__dirname, 'dist/main'),
       lib: { entry: resolve(__dirname, 'src/index.ts') },
     },
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [externalizeDepsPlugin({ exclude: ['@asf/domain', '@asf/contracts'] })],
     build: {
       outDir: resolve(__dirname, 'dist/preload'),
       lib: { entry: resolve(__dirname, 'src/preload.ts') },

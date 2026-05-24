@@ -40,6 +40,13 @@ importers:
         version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(vite@8.0.14(@types/node@25.9.1)(esbuild@0.27.7)(jiti@2.7.0))
 
   apps/main:
+    dependencies:
+      '@asf/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@asf/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.3.0
@@ -99,6 +106,10 @@ importers:
       vite:
         specifier: ^7.3.3
         version: 7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)
+
+  packages/contracts: {}
+
+  packages/domain: {}
 
 packages:
 
