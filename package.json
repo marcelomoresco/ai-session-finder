@@ -30,6 +30,11 @@
     "vitest": "^4.1.7"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["electron", "esbuild", "@tailwindcss/oxide", "@swc/core"]
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "@tailwindcss/oxide",
+      "@swc/core"
+    ]
   }
 }
