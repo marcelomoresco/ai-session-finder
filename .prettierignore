@@ -1,0 +1,11 @@
+node_modules
+dist
+out
+build
+coverage
+.vite
+pnpm-lock.yaml
+*.tsbuildinfo
+
+# Planning / context docs (kept verbatim, not auto-formatted)
+.claude/
