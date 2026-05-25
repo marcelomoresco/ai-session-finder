@@ -50,6 +50,21 @@ export const INSERT_FILE_TOUCHED = `
   VALUES (?, ?, ?, ?)
 `;
 
+// ---- vec_turns (semantic search; requires the sqlite-vec extension) ----
+// vec0 does not support INSERT OR REPLACE / UPSERT, so the repository upserts by
+// DELETE-then-INSERT inside a transaction.
+
+export const INSERT_VEC_TURN = `INSERT INTO vec_turns (turn_id, embedding) VALUES (?, ?)`;
+
+export const DELETE_VEC_TURN = `DELETE FROM vec_turns WHERE turn_id = ?`;
+
+export const SEARCH_VEC_TURNS = `
+  SELECT turn_id, distance
+  FROM vec_turns
+  WHERE embedding MATCH ? AND k = ?
+  ORDER BY distance
+`;
+
 export interface BuiltQuery {
   readonly sql: string;
   readonly params: Record<string, string | number>;
