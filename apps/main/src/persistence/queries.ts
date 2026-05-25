@@ -50,6 +50,15 @@ export const INSERT_FILE_TOUCHED = `
   VALUES (?, ?, ?, ?)
 `;
 
+export const SELECT_TURNS_BY_SESSION = `
+  SELECT id, session_id, turn_index, role, content_text, tool_calls, timestamp
+  FROM turns WHERE session_id = ? ORDER BY turn_index
+`;
+
+export const SELECT_FILES_BY_TURN = `
+  SELECT file_path, operation FROM files_touched WHERE turn_id = ?
+`;
+
 // ---- vec_turns (semantic search; requires the sqlite-vec extension) ----
 // vec0 does not support INSERT OR REPLACE / UPSERT, so the repository upserts by
 // DELETE-then-INSERT inside a transaction.

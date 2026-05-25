@@ -267,3 +267,32 @@ describe('SQLiteRepository — list & search', () => {
     expect(page.map((s) => s.id)).toEqual(['c']);
   });
 });
+
+describe('SQLiteRepository — TurnReader', () => {
+  it('lists turns ordered by index, reconstructing tool calls and files touched', async () => {
+    await repo.upsert(makeSession(), [
+      makeTurn({ id: TurnId.from('t2'), index: 1, contentText: 'second' }),
+      makeTurn({
+        id: TurnId.from('t1'),
+        index: 0,
+        contentText: 'first',
+        toolCalls: [{ name: 'Edit', input: { path: '/x' }, result: 'ok' }],
+        filesTouched: [{ path: '/x', operation: 'edit' }],
+      }),
+    ]);
+
+    const turns = await repo.listBySession(SessionId.from('sess-1'));
+
+    expect(turns.map((t) => t.id)).toEqual(['t1', 't2']);
+    expect(turns[0]!.contentText).toBe('first');
+    expect(turns[0]!.toolCalls).toEqual([{ name: 'Edit', input: { path: '/x' }, result: 'ok' }]);
+    expect(turns[0]!.filesTouched).toEqual([{ path: '/x', operation: 'edit' }]);
+    expect(turns[0]!.timestamp).toBeInstanceOf(Date);
+    expect(turns[1]!.toolCalls).toEqual([]);
+  });
+
+  it('returns an empty array for a session with no turns', async () => {
+    await repo.upsert(makeSession(), []);
+    expect(await repo.listBySession(SessionId.from('sess-1'))).toEqual([]);
+  });
+});

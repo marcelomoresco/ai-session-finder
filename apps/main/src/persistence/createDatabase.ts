@@ -21,28 +21,16 @@ export interface DatabaseHandle {
 export type SqliteVecLoader = (db: Database.Database) => void;
 
 /**
- * Opens (or creates) the application database under `userDataDir`, applies
- * pending migrations, and returns a handle. The caller injects the directory
- * (in the Electron main process: `app.getPath('userData')`) so this module
- * stays free of Electron and remains unit-testable.
- *
- * Connection PRAGMAs are set here, not in migrations: PRAGMA journal_mode
- * cannot run inside the transaction that wraps a migration.
+ * Shared setup for an opened connection: connection PRAGMAs (set here, not in
+ * migrations — `journal_mode` can't run inside a migration's transaction),
+ * best-effort sqlite-vec load, then migrations. A load failure degrades
+ * gracefully: skip migration 002 and disable semantic search.
  */
-export function createDatabase(
-  userDataDir: string,
-  loadVec: SqliteVecLoader = loadSqliteVec,
-): DatabaseHandle {
-  const db = new Database(join(userDataDir, DATABASE_FILENAME));
+function bootstrap(db: Database.Database, loadVec: SqliteVecLoader): DatabaseHandle {
   db.pragma('journal_mode = WAL');
   db.pragma('synchronous = NORMAL');
   db.pragma('foreign_keys = ON');
 
-  // Load sqlite-vec BEFORE the Migrator so 002 can create the vec0 virtual
-  // table, and on every open so vec_turns stays queryable (the module is
-  // per-connection). A load failure (e.g. an Intel Mac without a compatible
-  // prebuilt binary) degrades gracefully: skip 002 and disable semantic
-  // search instead of crashing the app.
   let semanticSearch = false;
   try {
     loadVec(db);
@@ -63,4 +51,24 @@ export function createDatabase(
       }
     },
   };
+}
+
+/**
+ * Opens (or creates) the application database under `userDataDir`. The caller
+ * injects the directory (Electron main: `app.getPath('userData')`) so this
+ * module stays free of Electron and unit-testable.
+ */
+export function createDatabase(
+  userDataDir: string,
+  loadVec: SqliteVecLoader = loadSqliteVec,
+): DatabaseHandle {
+  return bootstrap(new Database(join(userDataDir, DATABASE_FILENAME)), loadVec);
+}
+
+/**
+ * In-memory database — same schema and sqlite-vec behaviour as the file-backed
+ * one, but touches no filesystem. For integration tests.
+ */
+export function createInMemoryDatabase(loadVec: SqliteVecLoader = loadSqliteVec): DatabaseHandle {
+  return bootstrap(new Database(':memory:'), loadVec);
 }

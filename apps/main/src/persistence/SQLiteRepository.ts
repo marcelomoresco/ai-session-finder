@@ -6,13 +6,16 @@ import type Database from 'better-sqlite3';
 import {
   SessionId,
   TurnId,
+  type FileOperation,
   type Session,
   type SearchQuery,
   type SearchResult,
   type Tool,
+  type ToolCall,
   type Turn,
+  type TurnRole,
 } from '@asf/domain';
-import type { SessionListFilter, SessionReader } from './SessionReader';
+import type { SessionListFilter, SessionReader, TurnReader } from './SessionReader';
 import type { SessionWriter } from './SessionWriter';
 import type { SearchableRepository } from './SearchableRepository';
 import {
@@ -21,8 +24,10 @@ import {
   DELETE_TURNS_BY_SESSION,
   INSERT_FILE_TOUCHED,
   INSERT_TURN,
+  SELECT_FILES_BY_TURN,
   SELECT_SESSION_BY_ID,
   SELECT_SESSION_BY_TOOL_SOURCE,
+  SELECT_TURNS_BY_SESSION,
   UPSERT_SESSION,
   buildListSessionsQuery,
   buildSearchQuery,
@@ -58,6 +63,21 @@ interface SearchRow {
   readonly score: number;
 }
 
+interface TurnRow {
+  readonly id: string;
+  readonly session_id: string;
+  readonly turn_index: number;
+  readonly role: string;
+  readonly content_text: string;
+  readonly tool_calls: string | null;
+  readonly timestamp: number;
+}
+
+interface FileTouchedRow {
+  readonly file_path: string;
+  readonly operation: string;
+}
+
 type Row = Record<string, string | number | null>;
 
 /**
@@ -65,7 +85,9 @@ type Row = Record<string, string | number | null>;
  * raw columns (and back) here at the persistence boundary, so brands never leak
  * into the database and raw rows never leak into the domain.
  */
-export class SQLiteRepository implements SessionReader, SessionWriter, SearchableRepository {
+export class SQLiteRepository
+  implements SessionReader, SessionWriter, SearchableRepository, TurnReader
+{
   constructor(private readonly db: Database.Database) {}
 
   // ---- SessionReader ----
@@ -131,6 +153,13 @@ export class SQLiteRepository implements SessionReader, SessionWriter, Searchabl
     const { sql, params } = buildSearchQuery(fts, query.filters, query.limit);
     const rows = this.db.prepare(sql).all(params) as SearchRow[];
     return rows.map((row) => this.mapRowToResult(row));
+  }
+
+  // ---- TurnReader ----
+
+  async listBySession(sessionId: SessionId): Promise<ReadonlyArray<Turn>> {
+    const rows = this.db.prepare(SELECT_TURNS_BY_SESSION).all(sessionId) as TurnRow[];
+    return rows.map((row) => this.mapRowToTurn(row));
   }
 
   // ---- Mapping at the domain boundary ----
@@ -202,6 +231,23 @@ export class SQLiteRepository implements SessionReader, SessionWriter, Searchabl
       tool: row.tool as Tool,
       lastActivityAt: new Date(row.last_activity_at),
       score: row.score,
+    };
+  }
+
+  private mapRowToTurn(row: TurnRow): Turn {
+    const files = this.db.prepare(SELECT_FILES_BY_TURN).all(row.id) as FileTouchedRow[];
+    return {
+      id: TurnId.from(row.id),
+      sessionId: SessionId.from(row.session_id),
+      index: row.turn_index,
+      role: row.role as TurnRole,
+      contentText: row.content_text,
+      toolCalls: row.tool_calls ? (JSON.parse(row.tool_calls) as ReadonlyArray<ToolCall>) : [],
+      filesTouched: files.map((file) => ({
+        path: file.file_path,
+        operation: file.operation as FileOperation,
+      })),
+      timestamp: new Date(row.timestamp),
     };
   }
 

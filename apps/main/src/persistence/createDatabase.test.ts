@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createDatabase, DATABASE_FILENAME } from './createDatabase';
+import { createDatabase, createInMemoryDatabase, DATABASE_FILENAME } from './createDatabase';
 
 let dir: string;
 
@@ -90,6 +90,18 @@ describe('createDatabase — semantic search (sqlite-vec)', () => {
     // The vec0 functions must be absent when the extension never loaded.
     expect(() => handle.db.prepare('SELECT vec_version() AS v').get()).toThrow();
 
+    handle.close();
+  });
+});
+
+describe('createInMemoryDatabase', () => {
+  it('opens an in-memory database with the schema and touches no file', () => {
+    const handle = createInMemoryDatabase();
+    const table = handle.db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='sessions'")
+      .get();
+    expect(table).toEqual({ name: 'sessions' });
+    expect(typeof handle.semanticSearch).toBe('boolean');
     handle.close();
   });
 });
