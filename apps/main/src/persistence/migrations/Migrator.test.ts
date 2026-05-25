@@ -9,9 +9,9 @@ interface Migration {
 }
 
 function appliedVersions(db: Database.Database): number[] {
-  const rows = db
-    .prepare('SELECT version FROM schema_migrations ORDER BY version')
-    .all() as Array<{ version: number }>;
+  const rows = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all() as Array<{
+    version: number;
+  }>;
   return rows.map((row) => row.version);
 }
 

@@ -83,7 +83,9 @@ describe('SQLiteRepository — read/write', () => {
   });
 
   it('updates on id conflict and replaces turns', async () => {
-    await repo.upsert(makeSession({ turnCount: 1 }), [makeTurn({ id: TurnId.from('t1'), index: 0 })]);
+    await repo.upsert(makeSession({ turnCount: 1 }), [
+      makeTurn({ id: TurnId.from('t1'), index: 0 }),
+    ]);
     await repo.upsert(makeSession({ turnCount: 2, lastActivityAt: new Date(9999) }), [
       makeTurn({ id: TurnId.from('t2'), index: 0 }),
       makeTurn({ id: TurnId.from('t3'), index: 1 }),
@@ -114,7 +116,9 @@ describe('SQLiteRepository — read/write', () => {
     const row = db.prepare('SELECT tool_calls FROM turns WHERE id = ?').get('t1') as {
       tool_calls: string;
     };
-    expect(JSON.parse(row.tool_calls)).toEqual([{ name: 'Edit', input: { path: '/x' }, result: 'ok' }]);
+    expect(JSON.parse(row.tool_calls)).toEqual([
+      { name: 'Edit', input: { path: '/x' }, result: 'ok' },
+    ]);
     const files = db
       .prepare('SELECT file_path, operation FROM files_touched WHERE turn_id = ?')
       .all('t1');
@@ -136,7 +140,9 @@ describe('SQLiteRepository — read/write', () => {
 
 describe('SQLiteRepository — upsert atomicity', () => {
   it('rolls back, preserving prior state, when turns violate a constraint', async () => {
-    await repo.upsert(makeSession({ turnCount: 1 }), [makeTurn({ id: TurnId.from('t1'), index: 0 })]);
+    await repo.upsert(makeSession({ turnCount: 1 }), [
+      makeTurn({ id: TurnId.from('t1'), index: 0 }),
+    ]);
     await expect(
       repo.upsert(makeSession({ turnCount: 99 }), [
         makeTurn({ id: TurnId.from('t2'), index: 0 }),
@@ -145,9 +151,9 @@ describe('SQLiteRepository — upsert atomicity', () => {
     ).rejects.toThrow();
     const found = await repo.findById(SessionId.from('sess-1'));
     expect(found?.turnCount).toBe(1);
-    const turns = db
-      .prepare('SELECT id FROM turns WHERE session_id = ?')
-      .all('sess-1') as Array<{ id: string }>;
+    const turns = db.prepare('SELECT id FROM turns WHERE session_id = ?').all('sess-1') as Array<{
+      id: string;
+    }>;
     expect(turns.map((t) => t.id)).toEqual(['t1']);
   });
 });
@@ -231,9 +237,9 @@ describe('SQLiteRepository — list & search', () => {
   });
 
   it('returns an empty array when nothing matches', async () => {
-    expect(await repo.search({ text: 'zzznotfound', mode: 'quick', filters: {}, limit: 10 })).toEqual(
-      [],
-    );
+    expect(
+      await repo.search({ text: 'zzznotfound', mode: 'quick', filters: {}, limit: 10 }),
+    ).toEqual([]);
   });
 
   it('filters search by an after date', async () => {
