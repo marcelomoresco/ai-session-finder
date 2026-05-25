@@ -3,6 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "main": "dist/main/index.js",
+  "exports": {
+    "./ipc/router": {
+      "types": "./src/ipc/router.ts",
+      "default": "./src/ipc/router.ts"
+    }
+  },
   "dependencies": {
     "@asf/contracts": "workspace:*",
     "@asf/domain": "workspace:*",

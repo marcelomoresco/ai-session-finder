@@ -1,11 +1,9 @@
 import { defineConfig } from 'vitest/config';
 
+// Two projects: Node for domain/persistence/services, jsdom for the React
+// renderer. Coverage is configured here and spans both projects.
 export default defineConfig({
   test: {
-    globals: false,
-    environment: 'node',
-    // Sprint 00 ships no tests yet; do not fail the suite until Sprint 01.
-    passWithNoTests: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
@@ -15,8 +13,27 @@ export default defineConfig({
         branches: 75,
         statements: 80,
       },
-      exclude: ['**/*.config.*', '**/dist/**', '**/node_modules/**'],
+      exclude: [
+        '**/*.config.*',
+        '**/dist/**',
+        '**/node_modules/**',
+        '**/vitest.setup.ts',
+        '**/e2e/**',
+      ],
     },
-    include: ['**/*.{test,spec}.ts'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          globals: false,
+          environment: 'node',
+          include: ['**/*.{test,spec}.ts'],
+          exclude: ['**/node_modules/**', '**/dist/**', 'apps/renderer/**'],
+          passWithNoTests: true,
+        },
+      },
+      './apps/renderer/vitest.config.ts',
+    ],
   },
 });
