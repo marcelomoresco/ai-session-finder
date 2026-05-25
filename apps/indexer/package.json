@@ -1,0 +1,21 @@
+{
+  "name": "@asf/indexer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@asf/domain": "workspace:*",
+    "better-sqlite3": "^12.10.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.9.1",
+    "vitest": "^4.1.7"
+  }
+}
