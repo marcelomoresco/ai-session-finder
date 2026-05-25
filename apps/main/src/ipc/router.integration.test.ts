@@ -56,6 +56,12 @@ describe('appRouter (integration, in-memory SQLite)', () => {
     await app.close();
   });
 
+  it('resume.buildCommand returns null for an unknown session', async () => {
+    const { app, ctx } = setup();
+    expect(await caller(ctx).resume.buildCommand({ sessionId: 'missing' })).toBeNull();
+    await app.close();
+  });
+
   it('session.list accepts all filter operators', async () => {
     const { app, ctx } = setup();
     const results = await caller(ctx).session.list({
