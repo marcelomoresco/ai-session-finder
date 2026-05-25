@@ -7,8 +7,12 @@
     "@asf/contracts": "workspace:*",
     "@asf/domain": "workspace:*",
     "@asf/indexer": "workspace:*",
+    "@trpc/server": "^11.17.0",
     "better-sqlite3": "^12.10.0",
-    "sqlite-vec": "^0.1.9"
+    "pino": "^10.3.1",
+    "sqlite-vec": "^0.1.9",
+    "superjson": "^2.2.6",
+    "zod": "^4.4.3"
   },
   "scripts": {
     "dev": "electron-vite dev",
@@ -23,6 +27,7 @@
     "@vitejs/plugin-react": "^5.2.0",
     "electron": "^42.2.0",
     "electron-vite": "^5.0.0",
+    "fast-check": "^4.8.0",
     "tailwindcss": "^4.3.0",
     "vite": "^7.3.3",
     "vitest": "^4.1.7"

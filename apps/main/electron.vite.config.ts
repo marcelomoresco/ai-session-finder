@@ -10,7 +10,7 @@ const rendererRoot = resolve(__dirname, '../renderer');
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin({ exclude: ['@asf/domain', '@asf/contracts'] })],
+    plugins: [externalizeDepsPlugin({ exclude: ['@asf/domain', '@asf/contracts', '@asf/indexer'] })],
     build: {
       outDir: resolve(__dirname, 'dist/main'),
       lib: { entry: resolve(__dirname, 'src/index.ts') },
