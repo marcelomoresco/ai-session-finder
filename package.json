@@ -35,7 +35,10 @@
       "esbuild",
       "@tailwindcss/oxide",
       "@swc/core",
-      "better-sqlite3"
+      "better-sqlite3",
+      "onnxruntime-node",
+      "protobufjs",
+      "sharp"
     ]
   }
 }

@@ -6,7 +6,9 @@
   "dependencies": {
     "@asf/contracts": "workspace:*",
     "@asf/domain": "workspace:*",
-    "better-sqlite3": "^12.10.0"
+    "@asf/indexer": "workspace:*",
+    "better-sqlite3": "^12.10.0",
+    "sqlite-vec": "^0.1.9"
   },
   "scripts": {
     "dev": "electron-vite dev",
