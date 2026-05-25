@@ -1,4 +1,4 @@
-import { ConsoleLogger, type Logger } from '@asf/indexer';
+import { SilentLogger, type Logger } from '../observability/Logger';
 import type { MainToWorker, WorkerToMain } from './WorkerProtocol';
 
 /**
@@ -33,7 +33,7 @@ export class IndexerService {
   constructor(
     private readonly createWorker: WorkerFactory,
     private readonly callbacks: IndexerCallbacks = {},
-    private readonly logger: Logger = new ConsoleLogger(),
+    private readonly logger: Logger = new SilentLogger(),
   ) {}
 
   start(): void {
@@ -44,11 +44,11 @@ export class IndexerService {
     worker.on('message', (arg) => this.handleMessage(arg as WorkerToMain));
     worker.on('error', (arg) => {
       const message = arg instanceof Error ? arg.message : String(arg);
-      this.logger.error('indexer worker crashed', { message });
+      this.logger.error({ message }, 'indexer worker crashed');
       this.callbacks.onError?.(message);
     });
     worker.on('exit', (arg) => {
-      this.logger.warn('indexer worker exited', { code: arg });
+      this.logger.warn({ code: arg }, 'indexer worker exited');
       this.worker = null;
     });
     worker.postMessage({ type: 'start' } satisfies MainToWorker);
@@ -81,7 +81,7 @@ export class IndexerService {
         this.callbacks.onProgress?.(message.done, message.total);
         break;
       case 'error':
-        this.logger.error('indexer reported error', { message: message.message });
+        this.logger.error({ message: message.message }, 'indexer reported error');
         this.callbacks.onError?.(message.message);
         break;
     }

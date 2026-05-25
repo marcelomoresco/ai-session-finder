@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { NoopLogger } from '@asf/indexer';
+import { SilentLogger } from '../observability/Logger';
 import { IndexerService, type WorkerHandle } from './IndexerService';
 import type { MainToWorker, WorkerToMain } from './WorkerProtocol';
 
@@ -27,7 +27,7 @@ describe('IndexerService', () => {
   it('spawns the worker once and posts start', () => {
     const worker = new FakeWorker();
     const factory = vi.fn(() => worker);
-    const service = new IndexerService(factory, {}, new NoopLogger());
+    const service = new IndexerService(factory, {}, new SilentLogger());
 
     service.start();
     service.start();
@@ -45,7 +45,7 @@ describe('IndexerService', () => {
     const service = new IndexerService(
       () => worker,
       { onReady, onSessionIndexed, onProgress, onError },
-      new NoopLogger(),
+      new SilentLogger(),
     );
 
     service.start();
@@ -63,7 +63,7 @@ describe('IndexerService', () => {
   it('isolates a worker crash (error event) without throwing', () => {
     const worker = new FakeWorker();
     const onError = vi.fn();
-    const service = new IndexerService(() => worker, { onError }, new NoopLogger());
+    const service = new IndexerService(() => worker, { onError }, new SilentLogger());
 
     service.start();
 
@@ -73,7 +73,7 @@ describe('IndexerService', () => {
 
   it('posts fullReindex to the worker', () => {
     const worker = new FakeWorker();
-    const service = new IndexerService(() => worker, {}, new NoopLogger());
+    const service = new IndexerService(() => worker, {}, new SilentLogger());
 
     service.start();
     service.fullReindex();
@@ -84,7 +84,7 @@ describe('IndexerService', () => {
   it('stop posts stop, terminates, and lets a fresh worker be spawned', async () => {
     const worker = new FakeWorker();
     const factory = vi.fn(() => worker);
-    const service = new IndexerService(factory, {}, new NoopLogger());
+    const service = new IndexerService(factory, {}, new SilentLogger());
 
     service.start();
     await service.stop();
@@ -97,7 +97,7 @@ describe('IndexerService', () => {
   });
 
   it('stop is a no-op when never started', async () => {
-    const service = new IndexerService(() => new FakeWorker(), {}, new NoopLogger());
+    const service = new IndexerService(() => new FakeWorker(), {}, new SilentLogger());
     await expect(service.stop()).resolves.toBeUndefined();
   });
 });
