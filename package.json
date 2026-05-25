@@ -34,7 +34,8 @@
       "electron",
       "esbuild",
       "@tailwindcss/oxide",
-      "@swc/core"
+      "@swc/core",
+      "better-sqlite3"
     ]
   }
 }

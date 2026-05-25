@@ -1,5 +1,5 @@
 {
-  "name": "@asf/domain",
+  "name": "@asf/test-fixtures",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,9 +11,15 @@
   },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.9.1",
     "vitest": "^4.1.7"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.0"
   }
 }
