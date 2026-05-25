@@ -14,6 +14,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@asf/test-fixtures": "workspace:*",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.9.1",
     "vitest": "^4.1.7"
