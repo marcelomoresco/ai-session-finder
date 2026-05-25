@@ -12,6 +12,8 @@ export interface WatcherEvents {
 export interface WatcherOptions {
   /** awaitWriteFinish stability window — coalesces rapid JSONL appends. */
   readonly debounceMs: number;
+  /** Poll instead of native fs events — deterministic under heavy load (tests). */
+  readonly usePolling?: boolean;
 }
 
 const DEFAULT_OPTIONS: WatcherOptions = { debounceMs: 500 };
@@ -41,6 +43,8 @@ export class FsWatcher extends EventEmitter<WatcherEvents> {
     this.watcher = watch([...this.paths], {
       persistent: true,
       ignoreInitial: false,
+      usePolling: this.opts.usePolling ?? false,
+      interval: 100,
       awaitWriteFinish: { stabilityThreshold: this.opts.debounceMs, pollInterval: 100 },
     });
 

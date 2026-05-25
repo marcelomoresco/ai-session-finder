@@ -25,14 +25,14 @@ const nextFileChanged = (w: FsWatcher): Promise<string> =>
 
 describe('FsWatcher', () => {
   it('emits ready once the initial scan completes', async () => {
-    watcher = new FsWatcher([dir], { debounceMs: 50 });
+    watcher = new FsWatcher([dir], { debounceMs: 50, usePolling: true });
     const ready = once(watcher, 'ready');
     watcher.start();
     await expect(ready).resolves.toBeDefined();
   });
 
   it('emits fileChanged when a new file is created', async () => {
-    watcher = new FsWatcher([dir], { debounceMs: 50 });
+    watcher = new FsWatcher([dir], { debounceMs: 50, usePolling: true });
     watcher.start();
     await once(watcher, 'ready');
 
@@ -46,7 +46,7 @@ describe('FsWatcher', () => {
   it('emits fileChanged when an existing watched file is modified', async () => {
     const file = join(dir, 'session.jsonl');
     writeFileSync(file, 'one line\n');
-    watcher = new FsWatcher([dir], { debounceMs: 50 });
+    watcher = new FsWatcher([dir], { debounceMs: 50, usePolling: true });
     watcher.start();
     await once(watcher, 'ready');
 
@@ -57,7 +57,7 @@ describe('FsWatcher', () => {
   });
 
   it('stop() releases the watcher so no further events fire', async () => {
-    watcher = new FsWatcher([dir], { debounceMs: 50 });
+    watcher = new FsWatcher([dir], { debounceMs: 50, usePolling: true });
     watcher.start();
     await once(watcher, 'ready');
     await watcher.stop();
