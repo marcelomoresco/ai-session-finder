@@ -7,6 +7,8 @@ import { SearchService } from './services/SearchService';
 import { SessionService } from './services/SessionService';
 import { ResumeService } from './services/ResumeService';
 import { IndexerService, type IndexerCallbacks, type WorkerFactory } from './services/IndexerService';
+import { LaunchService } from './services/LaunchService';
+import { NodeCommandRunner } from './services/NodeCommandRunner';
 import { QueryParser } from './services/QueryParser';
 
 /** The wired application: every service, ready to serve IPC. */
@@ -14,6 +16,7 @@ export interface AppContext {
   readonly searchService: SearchService;
   readonly sessionService: SessionService;
   readonly resumeService: ResumeService;
+  readonly launchService: LaunchService;
   readonly indexerService: IndexerService;
   readonly logger: Logger;
   close(): Promise<void>;
@@ -58,12 +61,14 @@ export function createAppContext(options: AppContextOptions): AppContext {
   });
   const sessionService = new SessionService(repo, repo);
   const resumeService = new ResumeService(repo);
+  const launchService = new LaunchService(repo, new NodeCommandRunner(), logger);
   const indexerService = new IndexerService(options.createWorker, options.indexerCallbacks ?? {}, logger);
 
   return {
     searchService,
     sessionService,
     resumeService,
+    launchService,
     indexerService,
     logger,
     close: async () => {

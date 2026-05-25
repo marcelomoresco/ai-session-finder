@@ -5,29 +5,50 @@ export interface ResumeButtonProps {
   readonly sessionId: string;
 }
 
-/** Copies the tool-specific resume command to the clipboard. */
+/**
+ * Resumes a session in its original tool (opens Terminal running the resume
+ * command, or opens Cursor) via `resume.run`. Also offers copy-to-clipboard.
+ */
 export function ResumeButton({ sessionId }: ResumeButtonProps) {
+  const command = trpc.resume.buildCommand.useQuery({ sessionId });
+  const launch = trpc.resume.run.useMutation();
   const [copied, setCopied] = useState(false);
-  const { data } = trpc.resume.buildCommand.useQuery({ sessionId });
 
-  const handleClick = async (): Promise<void> => {
-    if (!data) return;
-    await navigator.clipboard.writeText(data.command);
+  const copy = async (): Promise<void> => {
+    if (!command.data) return;
+    await navigator.clipboard.writeText(command.data.command);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const label = copied ? '✓ Copied' : data ? `Copy: ${data.command}` : 'Loading…';
+  const resumeLabel = launch.isPending
+    ? 'Opening…'
+    : launch.isError
+      ? 'Failed — retry'
+      : launch.isSuccess
+        ? '✓ Opened'
+        : 'Resume session';
 
   return (
-    <button
-      type="button"
-      disabled={!data}
-      onClick={() => void handleClick()}
-      aria-label={data ? `Copy resume command: ${data.command}` : 'Loading resume command'}
-      className="inline-flex max-w-full items-center gap-2 truncate rounded-lg bg-white/10 px-3 py-2 font-mono text-sm text-zinc-200 ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/15 disabled:opacity-50"
-    >
-      {label}
-    </button>
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => launch.mutate({ sessionId })}
+        disabled={launch.isPending}
+        aria-label="Resume session in its original tool"
+        className="rounded-lg bg-sky-500/90 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-500 disabled:opacity-50"
+      >
+        {resumeLabel}
+      </button>
+      <button
+        type="button"
+        onClick={() => void copy()}
+        disabled={!command.data}
+        aria-label={command.data ? `Copy command: ${command.data.command}` : 'Copy command'}
+        className="rounded-lg bg-white/10 px-3 py-2 font-mono text-sm text-zinc-200 ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/15 disabled:opacity-50"
+      >
+        {copied ? '✓ Copied' : 'Copy'}
+      </button>
+    </div>
   );
 }
