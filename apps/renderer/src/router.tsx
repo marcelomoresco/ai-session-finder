@@ -32,6 +32,16 @@ function SessionScreen() {
   );
 }
 
+function SettingsScreen() {
+  // Opaque, scrollable backdrop — the launcher window is transparent, so the
+  // settings page needs its own solid background to be readable.
+  return (
+    <div className="h-screen overflow-y-auto bg-[#1c1c20]">
+      <SettingsPage />
+    </div>
+  );
+}
+
 function OnboardingScreen() {
   const navigate = useNavigate();
   const update = trpc.settings.update.useMutation();
@@ -48,6 +58,6 @@ function OnboardingScreen() {
 export const router = createHashRouter([
   { path: '/', element: <LauncherScreen /> },
   { path: '/sessions/:id', element: <SessionScreen /> },
-  { path: '/settings', element: <SettingsPage /> },
+  { path: '/settings', element: <SettingsScreen /> },
   { path: '/onboarding', element: <OnboardingScreen /> },
 ]);

@@ -18,11 +18,11 @@ export interface FilterBarProps {
 export function FilterBar({ filters, onChange }: FilterBarProps) {
   const selected = filters.tools ?? [];
 
-  const toggleTool = (tool: Tool): void => {
-    const next = selected.includes(tool)
-      ? selected.filter((value) => value !== tool)
-      : [...selected, tool];
-    onChange({ ...filters, tools: next.length > 0 ? next : undefined });
+  // Single-select: clicking a tool switches to just that provider; clicking the
+  // already-selected one clears the filter (shows all tools).
+  const selectTool = (tool: Tool): void => {
+    const isOnlyThis = selected.length === 1 && selected[0] === tool;
+    onChange({ ...filters, tools: isOnlyThis ? undefined : [tool] });
   };
 
   const activeCount =
@@ -44,7 +44,7 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
             key={id}
             type="button"
             aria-pressed={on}
-            onClick={() => toggleTool(id)}
+            onClick={() => selectTool(id)}
             className={`rounded-full px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide ring-1 ring-inset transition-colors ${
               on
                 ? 'bg-white/15 text-zinc-100 ring-white/20'

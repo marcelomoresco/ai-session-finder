@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { queryClient } from '../lib/queryClient';
 import { AppProviders } from '../providers/AppProviders';
 import { SettingsPage } from './SettingsPage';
@@ -49,7 +50,9 @@ function setup(): Calls {
 function renderPage(): void {
   render(
     <AppProviders>
-      <SettingsPage />
+      <MemoryRouter>
+        <SettingsPage />
+      </MemoryRouter>
     </AppProviders>,
   );
 }

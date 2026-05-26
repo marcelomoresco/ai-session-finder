@@ -16,6 +16,9 @@ import type { WorkerHandle } from './services/IndexerService';
 import type { AppSettings } from './services/Settings';
 import type { Tool } from '@asf/domain';
 
+// Display name for the menu bar and dialogs (dev runs the bare "Electron" binary).
+app.setName('AI Session Finder');
+
 let appContext: AppContext | null = null;
 let launcherWindow: BrowserWindow | null = null;
 let shortcuts: ShortcutManager | null = null;

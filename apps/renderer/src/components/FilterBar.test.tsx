@@ -17,6 +17,15 @@ describe('FilterBar', () => {
     expect(onChange).toHaveBeenCalledWith({ tools: undefined });
   });
 
+  it('switches provider to a single tool, replacing the previous selection', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<FilterBar filters={{ tools: ['claude-code'] }} onChange={onChange} />);
+
+    await user.click(screen.getByRole('button', { name: 'Codex' }));
+    expect(onChange).toHaveBeenCalledWith({ tools: ['codex-cli'] });
+  });
+
   it('reflects selection with aria-pressed', () => {
     render(<FilterBar filters={{ tools: ['cursor'] }} onChange={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Cursor' })).toHaveAttribute('aria-pressed', 'true');

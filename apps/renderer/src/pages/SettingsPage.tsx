@@ -36,18 +36,18 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-8 text-zinc-100">
-      <div className="flex items-center gap-3">
+    <div className="mx-auto max-w-2xl space-y-7 p-8 text-zinc-100">
+      <header className="flex items-center gap-3">
         <button
           type="button"
           onClick={() => void navigate('/')}
           aria-label="Back to launcher"
-          className="rounded-md bg-white/10 px-2 py-1 text-sm text-zinc-300 transition-colors hover:bg-white/15"
+          className="rounded-lg bg-white/[0.06] px-2.5 py-1.5 text-sm text-zinc-300 ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12] hover:text-zinc-100"
         >
           ← Back
         </button>
-        <h1 className="text-xl font-semibold">Settings</h1>
-      </div>
+        <h1 className="text-lg font-semibold tracking-tight">Settings</h1>
+      </header>
       <GeneralSection settings={s} onChange={onChange} />
       <SourcesSection settings={s} onChange={onChange} />
       <SearchSection settings={s} onChange={onChange} />

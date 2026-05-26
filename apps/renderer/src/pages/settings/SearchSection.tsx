@@ -1,5 +1,6 @@
 import { trpc } from '../../lib/trpc';
-import { sectionHeadingClass, type SettingsSectionProps } from './types';
+import { Toggle } from '../../components/Toggle';
+import { cardClass, rowClass, sectionHeadingClass, type SettingsSectionProps } from './types';
 
 export function SearchSection({ settings, onChange }: SettingsSectionProps) {
   const utils = trpc.useUtils();
@@ -16,38 +17,35 @@ export function SearchSection({ settings, onChange }: SettingsSectionProps) {
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <h2 className={sectionHeadingClass}>Search</h2>
-
-      <label className="flex items-center justify-between gap-4">
-        <span className="text-sm">Enable semantic search</span>
-        <input
-          type="checkbox"
-          aria-label="Enable semantic search"
-          checked={settings.semanticSearchEnabled}
-          onChange={(event) => onChange({ semanticSearchEnabled: event.target.checked })}
-        />
-      </label>
-      <p className="text-xs text-zinc-500">
+      <div className={cardClass}>
+        <div className={rowClass}>
+          <span className="text-sm text-zinc-200">Enable semantic search</span>
+          <Toggle
+            label="Enable semantic search"
+            checked={settings.semanticSearchEnabled}
+            onChange={(semanticSearchEnabled) => onChange({ semanticSearchEnabled })}
+          />
+        </div>
+        <div className={rowClass}>
+          <span className="text-sm text-zinc-200">
+            Encrypt database <span className="text-zinc-500">(Pro)</span>
+          </span>
+          <Toggle
+            label="Encrypt database"
+            checked={settings.encryptDatabase}
+            onChange={(encryptDatabase) => onChange({ encryptDatabase })}
+          />
+        </div>
+      </div>
+      <p className="px-1 text-xs text-zinc-500">
         Semantic search downloads a ~100 MB on-device model the first time it runs.
       </p>
-
-      <label className="flex items-center justify-between gap-4">
-        <span className="text-sm">
-          Encrypt database <span className="text-zinc-500">(Pro)</span>
-        </span>
-        <input
-          type="checkbox"
-          aria-label="Encrypt database"
-          checked={settings.encryptDatabase}
-          onChange={(event) => onChange({ encryptDatabase: event.target.checked })}
-        />
-      </label>
-
       <button
         type="button"
         onClick={clearIndex}
-        className="rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-300 ring-1 ring-inset ring-red-500/20 hover:bg-red-500/25"
+        className="rounded-lg bg-red-500/15 px-3 py-1.5 text-sm text-red-300 ring-1 ring-inset ring-red-500/20 transition-colors hover:bg-red-500/25"
       >
         Clear search index
       </button>

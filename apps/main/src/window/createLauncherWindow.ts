@@ -13,6 +13,7 @@ export function createLauncherWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 720,
     height: 600,
+    center: true,
     frame: false,
     transparent: true,
     hasShadow: false,
@@ -42,6 +43,7 @@ export function createLauncherWindow(): BrowserWindow {
   // the front stealing focus, so it always receives keyboard input even when
   // another app/window is active.
   win.on('show', () => {
+    win.center();
     app.focus({ steal: true });
     win.focus();
   });
