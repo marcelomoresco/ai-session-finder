@@ -5,6 +5,7 @@ import { publicProcedure, router } from '../trpc';
 
 const AppSettingsSchema = z.object({
   launcherShortcut: z.string(),
+  preferredApp: z.enum(['terminal', 'iterm', 'vscode', 'intellij', 'cursor']),
   theme: z.enum(['system', 'light', 'dark']),
   semanticSearchEnabled: z.boolean(),
   autoStartOnLogin: z.boolean(),
@@ -25,6 +26,7 @@ export const settingsRouter = router({
       // Rebuild a clean patch (exactOptionalPropertyTypes forbids `key: undefined`).
       const patch: Partial<AppSettings> = {
         ...(input.launcherShortcut !== undefined ? { launcherShortcut: input.launcherShortcut } : {}),
+        ...(input.preferredApp !== undefined ? { preferredApp: input.preferredApp } : {}),
         ...(input.theme !== undefined ? { theme: input.theme } : {}),
         ...(input.semanticSearchEnabled !== undefined
           ? { semanticSearchEnabled: input.semanticSearchEnabled }

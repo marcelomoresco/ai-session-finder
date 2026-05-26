@@ -18,5 +18,10 @@ export const resumeRouter = router({
   run: publicProcedure
     .input(z.object({ sessionId: z.string().min(1) }))
     .output(z.boolean())
-    .mutation(({ input, ctx }) => ctx.app.launchService.launch(SessionId.from(input.sessionId))),
+    .mutation(({ input, ctx }) =>
+      ctx.app.launchService.launch(
+        SessionId.from(input.sessionId),
+        ctx.app.settingsService.get().preferredApp,
+      ),
+    ),
 });

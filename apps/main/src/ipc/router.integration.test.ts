@@ -188,6 +188,14 @@ describe('appRouter (integration, in-memory SQLite)', () => {
     await app.close();
   });
 
+  it('system.availableApps lists installed apps, always including the terminal', async () => {
+    const { app, ctx } = setup();
+    const apps = await caller(ctx).system.availableApps();
+    expect(apps).toContain('terminal');
+    expect(Array.isArray(apps)).toBe(true);
+    await app.close();
+  });
+
   it('system.info returns the app version and platform as strings', async () => {
     const { app, ctx } = setup();
     const info = await caller(ctx).system.info();

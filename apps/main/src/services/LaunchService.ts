@@ -1,6 +1,7 @@
 import type { Session, SessionId } from '@asf/domain';
 import type { SessionReader } from '../persistence/SessionReader';
 import type { Logger } from '../observability/Logger';
+import type { PreferredApp } from './Settings';
 
 /** Runs an external command (no shell). The real impl uses child_process.execFile. */
 export interface CommandRunner {
@@ -44,7 +45,7 @@ export class LaunchService {
     private readonly locator?: WindowLocator,
   ) {}
 
-  async launch(sessionId: SessionId): Promise<boolean> {
+  async launch(sessionId: SessionId, preferredApp: PreferredApp = 'terminal'): Promise<boolean> {
     const session = await this.reader.findById(sessionId);
     if (!session) {
       return false;
@@ -61,13 +62,29 @@ export class LaunchService {
       const args = session.projectPath ? ['-a', 'Cursor', session.projectPath] : ['-a', 'Cursor'];
       await this.runner.run('open', args);
     } else {
-      const resume =
-        session.tool === 'claude-code'
-          ? `claude --resume ${shellQuote(session.sourceId)}`
-          : `codex resume ${shellQuote(session.sourceId)}`;
-      const cd = session.projectPath ? `cd ${shellQuote(session.projectPath)} && ` : '';
-      const script = `tell application "Terminal"\n  do script "${appleScriptEscape(cd + resume)}"\n  activate\nend tell`;
-      await this.runner.run('osascript', ['-e', script]);
+      // Editors just open the project folder; terminals run the resume command.
+      const editorApps: Partial<Record<PreferredApp, string>> = {
+        vscode: 'Visual Studio Code',
+        intellij: 'IntelliJ IDEA',
+        cursor: 'Cursor',
+      };
+      const editorApp = editorApps[preferredApp];
+      if (editorApp) {
+        const args = session.projectPath ? ['-a', editorApp, session.projectPath] : ['-a', editorApp];
+        await this.runner.run('open', args);
+      } else {
+        const resume =
+          session.tool === 'claude-code'
+            ? `claude --resume ${shellQuote(session.sourceId)}`
+            : `codex resume ${shellQuote(session.sourceId)}`;
+        const cd = session.projectPath ? `cd ${shellQuote(session.projectPath)} && ` : '';
+        const command = appleScriptEscape(cd + resume);
+        const script =
+          preferredApp === 'iterm'
+            ? `tell application "iTerm"\n  activate\n  create window with default profile\n  tell current session of current window\n    write text "${command}"\n  end tell\nend tell`
+            : `tell application "Terminal"\n  do script "${command}"\n  activate\nend tell`;
+        await this.runner.run('osascript', ['-e', script]);
+      }
     }
 
     // Metadata only — never log session content.

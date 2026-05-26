@@ -45,7 +45,7 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
             type="button"
             aria-pressed={on}
             onClick={() => selectTool(id)}
-            className={`rounded-full px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide ring-1 ring-inset transition-colors ${
+            className={`rounded-full px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide ring-1 ring-inset transition-colors [-webkit-app-region:no-drag] ${
               on
                 ? 'bg-white/15 text-zinc-100 ring-white/20'
                 : 'text-zinc-500 ring-white/10 hover:text-zinc-300'
@@ -61,7 +61,7 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
           <button
             type="button"
             onClick={() => onChange({})}
-            className="font-mono text-[11px] text-zinc-400 underline-offset-2 hover:text-zinc-200 hover:underline"
+            className="font-mono text-[11px] text-zinc-400 underline-offset-2 hover:text-zinc-200 hover:underline [-webkit-app-region:no-drag]"
           >
             Reset
           </button>

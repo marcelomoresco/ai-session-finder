@@ -20,7 +20,7 @@ export function ResultItem({ result, onSelect }: ResultItemProps) {
     <Command.Item
       value={result.turnId}
       onSelect={() => onSelect(result)}
-      className="flex cursor-pointer flex-col gap-1 rounded-lg px-3 py-2.5 text-left transition-colors data-[selected=true]:bg-white/10"
+      className="flex cursor-pointer flex-col gap-1 rounded-lg px-3 py-2.5 text-left transition-colors data-[selected=true]:bg-white/10 [-webkit-app-region:no-drag]"
     >
       <div className="flex items-center gap-2">
         <ToolBadge tool={result.tool} />

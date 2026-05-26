@@ -8,6 +8,7 @@ import { SettingsPage } from './SettingsPage';
 
 const SETTINGS = {
   launcherShortcut: 'CommandOrControl+Shift+Space',
+  preferredApp: 'terminal',
   theme: 'system',
   semanticSearchEnabled: true,
   autoStartOnLogin: false,
@@ -38,6 +39,8 @@ function setup(): Calls {
             return Promise.resolve({ indexed: 12, lastSync: null });
           case 'system.info':
             return Promise.resolve({ version: '1.2.3', platform: 'darwin' });
+          case 'system.availableApps':
+            return Promise.resolve(['terminal', 'iterm', 'vscode', 'intellij', 'cursor']);
           default:
             return Promise.resolve(undefined);
         }
@@ -71,6 +74,18 @@ describe('SettingsPage', () => {
     expect(screen.getByText('Sources')).toBeInTheDocument();
     expect(screen.getByText('Search')).toBeInTheDocument();
     expect(screen.getByText('About')).toBeInTheDocument();
+  });
+
+  it('changes the preferred app via the dropdown', async () => {
+    const calls = setup();
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Settings');
+    await user.click(screen.getByRole('button', { name: 'Open sessions in' }));
+    await user.click(screen.getByRole('option', { name: /iTerm2/i }));
+
+    await waitFor(() => expect(calls.updates).toContainEqual({ preferredApp: 'iterm' }));
   });
 
   it('toggling a source off persists the reduced enabledSources', async () => {

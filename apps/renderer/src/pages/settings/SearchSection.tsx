@@ -28,16 +28,6 @@ export function SearchSection({ settings, onChange }: SettingsSectionProps) {
             onChange={(semanticSearchEnabled) => onChange({ semanticSearchEnabled })}
           />
         </div>
-        <div className={rowClass}>
-          <span className="text-sm text-zinc-200">
-            Encrypt database <span className="text-zinc-500">(Pro)</span>
-          </span>
-          <Toggle
-            label="Encrypt database"
-            checked={settings.encryptDatabase}
-            onChange={(encryptDatabase) => onChange({ encryptDatabase })}
-          />
-        </div>
       </div>
       <p className="px-1 text-xs text-zinc-500">
         Semantic search downloads a ~100 MB on-device model the first time it runs.

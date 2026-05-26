@@ -1,7 +1,15 @@
 import { TOOLS, type Tool } from '@asf/domain';
 
+/**
+ * Where a session that isn't already running opens. Terminals run the resume
+ * command (`claude --resume` / `codex resume`); editors open the project folder.
+ */
+export type PreferredApp = 'terminal' | 'iterm' | 'vscode' | 'intellij' | 'cursor';
+
 export interface AppSettings {
   readonly launcherShortcut: string;
+  /** Which app a resumed session opens in. */
+  readonly preferredApp: PreferredApp;
   readonly theme: 'system' | 'light' | 'dark';
   readonly semanticSearchEnabled: boolean;
   readonly autoStartOnLogin: boolean;
@@ -14,6 +22,7 @@ export interface AppSettings {
 
 export const DEFAULT_SETTINGS: AppSettings = {
   launcherShortcut: 'CommandOrControl+E',
+  preferredApp: 'terminal',
   theme: 'system',
   semanticSearchEnabled: true,
   autoStartOnLogin: false,

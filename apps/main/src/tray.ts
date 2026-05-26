@@ -47,7 +47,15 @@ export class TrayController {
       { label: 'Reindex now', click: () => this.callbacks.reindex() },
       { type: 'separator' },
       { label: 'Settings…', click: () => this.callbacks.openSettings() },
-      { label: 'About AI Session Finder', click: () => app.showAboutPanel() },
+      {
+        label: 'About AI Session Finder',
+        click: () => {
+          // Accessory app isn't frontmost; pull it forward so the About panel
+          // shows on top of every other window instead of behind them.
+          app.focus({ steal: true });
+          app.showAboutPanel();
+        },
+      },
       { type: 'separator' },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: () => this.callbacks.quit() },
     ]);

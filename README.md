@@ -1,10 +1,14 @@
-<!-- Badges use the OWNER placeholder; replace `OWNER` with your GitHub org/user once the repo is pushed. -->
+<p align="center">
+  <img src="docs/assets/logo.png" alt="AI Session Finder" width="128" height="128">
+</p>
 
-# AI Session Finder
+<h1 align="center">AI Session Finder</h1>
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
-[![CI](https://github.com/OWNER/ai-session-finder/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/ai-session-finder/actions/workflows/ci.yml)
-[![Downloads](https://img.shields.io/badge/downloads-coming_soon-lightgrey.svg)](#)
+<p align="center">
+  <a href="./LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
+  <a href="https://github.com/marcelomoresco/ai-session-finder/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/marcelomoresco/ai-session-finder/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/marcelomoresco/ai-session-finder/releases"><img alt="Release" src="https://img.shields.io/github/v/release/marcelomoresco/ai-session-finder"></a>
+</p>
 
 > **Status: 🚧 Work in progress.** Building in the open, sprint by sprint.
 

@@ -6,6 +6,7 @@ import { App } from './App';
 
 const SETTINGS = {
   launcherShortcut: 'CommandOrControl+Shift+Space',
+  preferredApp: 'terminal',
   theme: 'system',
   semanticSearchEnabled: true,
   autoStartOnLogin: false,

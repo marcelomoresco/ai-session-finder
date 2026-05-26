@@ -97,6 +97,26 @@ describe('LaunchService.launch', () => {
     expect(script).toContain("cd '/Users/me/repo' && claude --resume 'abc123'");
   });
 
+  it('resumes in iTerm when that is the preferred terminal', async () => {
+    const { service, runner } = serviceFor(makeSession('claude-code', '/Users/me/repo'));
+    await service.launch(SessionId.from('s1'), 'iterm');
+
+    expect(runner.calls[0]!.command).toBe('osascript');
+    const script = runner.calls[0]!.args[1]!;
+    expect(script).toContain('iTerm');
+    expect(script).toContain("cd '/Users/me/repo' && claude --resume 'abc123'");
+  });
+
+  it('opens the project in VS Code when that is the preferred app', async () => {
+    const { service, runner } = serviceFor(makeSession('claude-code', '/Users/me/repo'));
+    await service.launch(SessionId.from('s1'), 'vscode');
+
+    expect(runner.calls[0]).toEqual({
+      command: 'open',
+      args: ['-a', 'Visual Studio Code', '/Users/me/repo'],
+    });
+  });
+
   it('uses the codex resume command', async () => {
     const { service, runner } = serviceFor(makeSession('codex-cli', '/repo'));
     await service.launch(SessionId.from('s1'));

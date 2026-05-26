@@ -90,6 +90,7 @@ const RESUME: ResumeCommand = {
 export function installDevTrpcMock(): void {
   let settings: Record<string, unknown> = {
     launcherShortcut: 'CommandOrControl+Shift+Space',
+    preferredApp: 'terminal',
     theme: 'system',
     semanticSearchEnabled: true,
     autoStartOnLogin: false,
@@ -118,6 +119,8 @@ export function installDevTrpcMock(): void {
     if (path === 'indexer.stats')
       return Promise.resolve({ indexed: SAMPLE_RESULTS.length, lastSync: new Date(Date.now() - HOUR) });
     if (path === 'system.info') return Promise.resolve({ version: '0.0.0-dev', platform: 'darwin' });
+    if (path === 'system.availableApps')
+      return Promise.resolve(['terminal', 'iterm', 'vscode', 'cursor']);
     if (path === 'indexer.fullReindex' || path === 'indexer.clearIndex')
       return Promise.resolve(undefined);
     return Promise.resolve(null);

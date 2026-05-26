@@ -79,6 +79,9 @@ function bootstrap(): void {
     applicationName: 'AI Session Finder',
     applicationVersion: app.getVersion(),
     copyright: `© ${new Date().getFullYear()} Marcelo Moresco · Apache 2.0`,
+    iconPath: app.isPackaged
+      ? join(process.resourcesPath, 'icon.png')
+      : join(__dirname, '../../resources/icon.png'),
   });
 
   // Manual/opt-in updates only — never download or install silently.

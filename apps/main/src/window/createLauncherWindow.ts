@@ -43,7 +43,8 @@ export function createLauncherWindow(): BrowserWindow {
   // the front stealing focus, so it always receives keyboard input even when
   // another app/window is active.
   win.on('show', () => {
-    win.center();
+    // Centered on first creation (center: true); afterwards we keep wherever the
+    // user dragged it (the launcher is movable, Spotlight-style).
     app.focus({ steal: true });
     win.focus();
   });

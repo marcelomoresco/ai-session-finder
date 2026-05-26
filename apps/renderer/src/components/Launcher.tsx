@@ -36,7 +36,7 @@ export function Launcher({ onOpen, onSettings }: LauncherProps) {
       label="Search sessions"
       shouldFilter={false}
       onKeyDown={handleKeyDown}
-      className="asf-launcher mx-auto w-full max-w-2xl overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#1c1c20] shadow-xl shadow-black/40"
+      className="asf-launcher mx-auto w-full max-w-2xl overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#1c1c20] shadow-xl shadow-black/40 [-webkit-app-region:drag]"
     >
       <div className="flex items-center gap-3 px-4">
         <SearchGlyph />
@@ -45,7 +45,7 @@ export function Launcher({ onOpen, onSettings }: LauncherProps) {
           value={query}
           onValueChange={setQuery}
           placeholder="Search across all your AI coding sessions…"
-          className="min-w-0 flex-1 bg-transparent py-4 text-[15px] text-zinc-100 placeholder:text-zinc-500 focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent py-4 text-[15px] text-zinc-100 placeholder:text-zinc-500 focus:outline-none [-webkit-app-region:no-drag]"
         />
         {isRefining && (
           <span className="shrink-0 animate-pulse font-mono text-[11px] text-zinc-500">
@@ -56,7 +56,7 @@ export function Launcher({ onOpen, onSettings }: LauncherProps) {
           type="button"
           aria-label="Open settings"
           onClick={onSettings}
-          className="shrink-0 rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-white/10 hover:text-zinc-200"
+          className="shrink-0 rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-white/10 hover:text-zinc-200 [-webkit-app-region:no-drag]"
         >
           <GearGlyph />
         </button>
