@@ -23,11 +23,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Builds main/preload/renderer, then packs the unsigned DMG + ZIP.
-      # The app is intentionally unsigned (no Apple Developer ID) for the MVP.
-      - run: pnpm dist
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Build the bundles once, then package each arch in its OWN electron-builder
+      # run. A single multi-arch run rebuilds better-sqlite3 in the shared pnpm
+      # store and the x64 pass (last) clobbers it, so the arm64 DMG shipped an
+      # x86_64 binary that won't load on Apple Silicon. Separate runs pack each
+      # DMG right after its arch's native rebuild. App ships unsigned (MVP).
+      - run: pnpm build
+      - run: pnpm --filter @asf/main exec electron-builder --mac --arm64 --config electron-builder.yml --publish never
+      - run: pnpm --filter @asf/main exec electron-builder --mac --x64 --config electron-builder.yml --publish never
 
       - uses: softprops/action-gh-release@v2
         with:

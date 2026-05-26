@@ -1,7 +1,7 @@
 {
   "name": "@asf/main",
   "productName": "AI Session Finder",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "main": "dist/main/index.js",
   "exports": {
