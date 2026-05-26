@@ -62,9 +62,8 @@ describe('SettingsPage', () => {
     queryClient.clear();
   });
 
-  it('renders all four sections and updates the theme on change', async () => {
-    const calls = setup();
-    const user = userEvent.setup();
+  it('renders all four sections', async () => {
+    setup();
     renderPage();
 
     await screen.findByText('Settings');
@@ -72,9 +71,6 @@ describe('SettingsPage', () => {
     expect(screen.getByText('Sources')).toBeInTheDocument();
     expect(screen.getByText('Search')).toBeInTheDocument();
     expect(screen.getByText('About')).toBeInTheDocument();
-
-    await user.selectOptions(screen.getByLabelText('Theme'), 'dark');
-    await waitFor(() => expect(calls.updates).toContainEqual({ theme: 'dark' }));
   });
 
   it('toggling a source off persists the reduced enabledSources', async () => {

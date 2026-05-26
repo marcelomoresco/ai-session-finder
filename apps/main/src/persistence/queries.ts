@@ -155,6 +155,7 @@ export function buildSearchQuery(fts: string, filters: SearchFilters, limit: num
         s.project_name AS project_name,
         s.tool AS tool,
         s.last_activity_at AS last_activity_at,
+        s.input_tokens + s.output_tokens AS tokens,
         bm25(turns_fts) AS score
       FROM turns_fts
       JOIN turns t ON t.rowid = turns_fts.rowid
@@ -206,6 +207,7 @@ export function buildBrowseActiveQuery(filters: SearchFilters, limit: number): B
         s.project_name AS project_name,
         s.tool AS tool,
         s.last_activity_at AS last_activity_at,
+        s.input_tokens + s.output_tokens AS tokens,
         0 AS score
       FROM sessions s
       JOIN turns t ON t.id = (

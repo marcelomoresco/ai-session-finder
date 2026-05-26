@@ -7,6 +7,7 @@ import { trpc } from './lib/trpc';
 import type { SearchResult } from './lib/types';
 
 function LauncherScreen() {
+  const navigate = useNavigate();
   const resume = trpc.resume.run.useMutation();
   const onOpen = (result: SearchResult): void => {
     // Reopen the session in its own tool at its original directory (`claude
@@ -15,7 +16,7 @@ function LauncherScreen() {
   };
   return (
     <div className="flex min-h-screen items-start justify-center bg-transparent px-4 pt-[8vh]">
-      <Launcher onOpen={onOpen} />
+      <Launcher onOpen={onOpen} onSettings={() => void navigate('/settings')} />
     </div>
   );
 }

@@ -10,6 +10,10 @@
 
 A fast, open-source macOS launcher for searching across your **Claude Code**, **Codex CLI**, and **Cursor** sessions — one keystroke to find that conversation you half-remember.
 
+<p align="center">
+  <img src="docs/assets/launcher.png" alt="AI Session Finder — Spotlight-style search across Claude Code, Codex CLI, and Cursor sessions" width="760">
+</p>
+
 ## Why
 
 Your AI coding history is scattered across tools, each with its own log format. AI Session Finder indexes them locally and gives you a single Spotlight-style search over everything: full-text and semantic, fully on-device.
@@ -26,7 +30,7 @@ brew install --cask marcelomoresco/tap/ai-session-finder
 
 **Or grab the DMG** from [Releases](https://github.com/marcelomoresco/ai-session-finder/releases), open it, and drag the app into Applications.
 
-Because the app isn't signed with an Apple Developer ID yet, the **first launch** needs **Right-click → Open** → **Open** (Homebrew installs clear the quarantine flag for you). Then press **⌘+Shift+Space** anywhere to search.
+Because the app isn't signed with an Apple Developer ID yet, the **first launch** needs **Right-click → Open** → **Open** (Homebrew installs clear the quarantine flag for you). Then press **⌘E** anywhere to search (rebindable in Settings).
 
 ## Features
 

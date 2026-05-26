@@ -15,6 +15,7 @@ const SAMPLE_RESULTS: SearchResult[] = [
     tool: 'claude-code',
     lastActivityAt: new Date(Date.now() - HOUR),
     score: 1,
+    tokens: 18_400,
   },
   {
     sessionId: 'demo-2',
@@ -24,6 +25,7 @@ const SAMPLE_RESULTS: SearchResult[] = [
     tool: 'codex-cli',
     lastActivityAt: new Date(Date.now() - 2 * DAY),
     score: 0.82,
+    tokens: 7_200,
   },
   {
     sessionId: 'demo-3',
@@ -33,6 +35,7 @@ const SAMPLE_RESULTS: SearchResult[] = [
     tool: 'cursor',
     lastActivityAt: new Date(Date.now() - 30 * 60_000),
     score: 0.64,
+    tokens: 41_300,
   },
 ];
 

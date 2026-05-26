@@ -28,6 +28,7 @@ export const SearchResultSchema = z.object({
   tool: z.enum(TOOLS),
   lastActivityAt: z.date(),
   score: z.number(),
+  tokens: z.number().optional(),
 });
 
 export type SearchQueryInput = z.input<typeof SearchQuerySchema>;

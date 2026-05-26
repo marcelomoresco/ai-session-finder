@@ -335,6 +335,17 @@ describe('SQLiteRepository — list & search', () => {
     expect(rows[0]?.sessionId).toBe('c');
   });
 
+  it('search results carry the session token total (input + output)', async () => {
+    const results = await repo.search({ text: 'race', mode: 'quick', filters: {}, limit: 10 });
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.every((r) => r.tokens === 30)).toBe(true);
+  });
+
+  it('browse results carry the token total', async () => {
+    const rows = await repo.browse({ tools: ['claude-code'], after: new Date(50) }, 10);
+    expect(rows[0]?.tokens).toBe(30);
+  });
+
   it('paginates list with limit and offset', async () => {
     const page = await repo.list({ limit: 1, offset: 1 });
     expect(page.map((s) => s.id)).toEqual(['c']);

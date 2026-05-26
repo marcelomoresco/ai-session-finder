@@ -26,4 +26,6 @@ export interface SearchResult {
   readonly tool: Tool;
   readonly lastActivityAt: Date;
   readonly score: number;
+  /** Total session tokens (input + output). Populated by the repository queries. */
+  readonly tokens?: number;
 }

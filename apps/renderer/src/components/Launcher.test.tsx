@@ -22,13 +22,17 @@ const results: SearchResult[] = [
   },
 ];
 
-function renderLauncher(onOpen = vi.fn()) {
+function renderLauncher(onOpen = vi.fn(), onSettings = vi.fn()) {
   render(
     <AppProviders>
-      <Launcher onOpen={onOpen} />
+      <Launcher onOpen={onOpen} onSettings={onSettings} />
     </AppProviders>,
   );
-  return { onOpen, input: screen.getByPlaceholderText<HTMLInputElement>(/search across all/i) };
+  return {
+    onOpen,
+    onSettings,
+    input: screen.getByPlaceholderText<HTMLInputElement>(/search across all/i),
+  };
 }
 
 describe('Launcher', () => {
@@ -102,6 +106,16 @@ describe('Launcher', () => {
 
     expect(onOpen).toHaveBeenCalledTimes(1);
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ turnId: 't2' }));
+  });
+
+  it('opens settings when the gear is clicked', async () => {
+    setInvoke(vi.fn().mockResolvedValue([]));
+    const user = userEvent.setup();
+    const onSettings = vi.fn();
+    renderLauncher(vi.fn(), onSettings);
+
+    await user.click(screen.getByRole('button', { name: /settings/i }));
+    expect(onSettings).toHaveBeenCalledTimes(1);
   });
 
   it('clears the query on Escape', async () => {

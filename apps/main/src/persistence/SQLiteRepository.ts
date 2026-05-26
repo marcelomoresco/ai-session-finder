@@ -67,6 +67,7 @@ interface SearchRow {
   readonly tool: string;
   readonly last_activity_at: number;
   readonly score: number;
+  readonly tokens: number;
 }
 
 interface TurnRow {
@@ -258,6 +259,7 @@ export class SQLiteRepository
       tool: row.tool as Tool,
       lastActivityAt: new Date(row.last_activity_at),
       score: row.score,
+      tokens: row.tokens,
     };
   }
 
