@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 
 const rendererDevUrl = process.env['ELECTRON_RENDERER_URL'];
 
@@ -47,6 +47,23 @@ export function createLauncherWindow(): BrowserWindow {
     // user dragged it (the launcher is movable, Spotlight-style).
     app.focus({ steal: true });
     win.focus();
+  });
+
+  // External links (GitHub, Discussions, …) open in the default browser — never
+  // in the launcher window, which would navigate away from the app with no way back.
+  const isExternal = (url: string): boolean =>
+    (url.startsWith('http://') || url.startsWith('https://')) &&
+    !(rendererDevUrl !== undefined && url.startsWith(rendererDevUrl));
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (isExternal(url)) void shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  win.webContents.on('will-navigate', (event, url) => {
+    if (isExternal(url)) {
+      event.preventDefault();
+      void shell.openExternal(url);
+    }
   });
 
   if (rendererDevUrl !== undefined) {

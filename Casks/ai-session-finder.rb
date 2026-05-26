@@ -1,5 +1,5 @@
 cask "ai-session-finder" do
-  version "0.1.0"
+  version "0.2.0"
 
   on_arm do
     sha256 "REPLACE_WITH_ARM64_DMG_SHA256" # shasum -a 256 ai-session-finder-0.1.0-arm64.dmg

@@ -35,12 +35,6 @@ export function AboutSection({ onChange }: SettingsSectionProps) {
           >
             GitHub
           </a>
-          <a
-            className="text-sky-400 transition-colors hover:text-sky-300 hover:underline"
-            href="https://github.com/marcelomoresco/ai-session-finder/discussions"
-          >
-            Discussions
-          </a>
         </div>
       </div>
       <div className="flex flex-wrap gap-3 px-1">
