@@ -6,6 +6,6 @@ declare global {
     readonly trpc: {
       invoke(path: string, type: 'query' | 'mutation', input: unknown): Promise<unknown>;
     };
-    readonly asf?: { readonly electronVersion: string };
+    readonly asf?: { readonly electronVersion: string; readonly hideLauncher: () => void };
   }
 }

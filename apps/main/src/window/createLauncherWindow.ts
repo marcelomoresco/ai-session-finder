@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
 
 const rendererDevUrl = process.env['ELECTRON_RENDERER_URL'];
 
@@ -36,6 +36,14 @@ export function createLauncherWindow(): BrowserWindow {
     if (!win.webContents.isDevToolsOpened()) {
       win.hide();
     }
+  });
+
+  // Accessory app (no Dock icon): every time the launcher shows, pull the app to
+  // the front stealing focus, so it always receives keyboard input even when
+  // another app/window is active.
+  win.on('show', () => {
+    app.focus({ steal: true });
+    win.focus();
   });
 
   if (rendererDevUrl !== undefined) {

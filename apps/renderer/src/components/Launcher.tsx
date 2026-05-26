@@ -17,9 +17,16 @@ export function Launcher({ onOpen }: LauncherProps) {
   const { results, isLoading, isRefining } = useSearch({ query, filters });
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-    if (event.key === 'Escape' && query.length > 0) {
-      event.preventDefault();
+    if (event.key !== 'Escape') {
+      return;
+    }
+    event.preventDefault();
+    // First Escape clears a non-empty query; a second (or Escape on an empty
+    // query) hides the launcher window.
+    if (query.length > 0) {
       setQuery('');
+    } else {
+      window.asf?.hideLauncher();
     }
   };
 

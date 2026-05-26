@@ -12,6 +12,7 @@ interface TrpcResponseErr {
 
 contextBridge.exposeInMainWorld('asf', {
   electronVersion: process.versions.electron,
+  hideLauncher: () => ipcRenderer.send('launcher:hide'),
 });
 
 /**

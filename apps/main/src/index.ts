@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
-import { app, globalShortcut, shell } from 'electron';
+import { app, globalShortcut, ipcMain, shell } from 'electron';
 import type { BrowserWindow } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { createDatabase } from './persistence/createDatabase';
@@ -43,10 +43,20 @@ function getWindow(): BrowserWindow {
   return launcherWindow;
 }
 
-function showLauncher(): void {
+/** Shows the window, focuses it, and routes the renderer (hash router) to `route`. */
+function navigate(route: string): void {
   const win = getWindow();
   win.show();
   win.focus();
+  void win.webContents.executeJavaScript(`window.location.hash = '#${route}';`).catch(() => {});
+}
+
+function showLauncher(): void {
+  navigate('/');
+}
+
+function showSettings(): void {
+  navigate('/settings');
 }
 
 function trayIconPath(): string {
@@ -96,12 +106,15 @@ function bootstrap(): void {
 
   attachTrpcToElectron(createTrpcContext(appContext));
 
+  // Renderer asks to dismiss the launcher (Escape on an empty query).
+  ipcMain.on('launcher:hide', () => launcherWindow?.hide());
+
   shortcuts = new ShortcutManager(globalShortcut, getWindow, appContext.settingsService, logger);
   shortcuts.register();
 
   tray = new TrayController(trayIconPath(), {
     openLauncher: showLauncher,
-    openSettings: showLauncher, // TODO: deep-link to /settings via an IPC channel
+    openSettings: showSettings,
     reindex: () => appContext?.indexerService.fullReindex(),
     quit: () => app.quit(),
   });

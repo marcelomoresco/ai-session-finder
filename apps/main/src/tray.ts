@@ -39,7 +39,7 @@ export class TrayController {
     const menu = Menu.buildFromTemplate([
       {
         label: 'Open Launcher',
-        accelerator: 'CmdOrCtrl+Shift+Space',
+        accelerator: 'CmdOrCtrl+E',
         click: () => this.callbacks.openLauncher(),
       },
       { type: 'separator' },

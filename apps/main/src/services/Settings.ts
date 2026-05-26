@@ -13,7 +13,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  launcherShortcut: 'CommandOrControl+Shift+Space',
+  launcherShortcut: 'CommandOrControl+E',
   theme: 'system',
   semanticSearchEnabled: true,
   autoStartOnLogin: false,

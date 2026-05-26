@@ -115,4 +115,20 @@ describe('Launcher', () => {
     await user.keyboard('{Escape}');
     expect(input.value).toBe('');
   });
+
+  it('hides the launcher on Escape when the query is already empty', async () => {
+    setInvoke(vi.fn().mockResolvedValue([]));
+    const hideLauncher = vi.fn();
+    Object.defineProperty(window, 'asf', {
+      configurable: true,
+      value: { electronVersion: '0', hideLauncher },
+    });
+    const user = userEvent.setup();
+    const { input } = renderLauncher();
+
+    await user.click(input);
+    await user.keyboard('{Escape}');
+
+    expect(hideLauncher).toHaveBeenCalledTimes(1);
+  });
 });
