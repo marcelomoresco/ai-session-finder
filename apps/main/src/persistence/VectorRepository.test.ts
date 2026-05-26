@@ -88,4 +88,13 @@ describe('SqliteVecRepository', () => {
   it('accepts an empty batch', async () => {
     await expect(repo.upsertBatch([])).resolves.toBeUndefined();
   });
+
+  it('clearAll removes every vector', async () => {
+    await repo.upsertBatch([
+      { turnId: TurnId.from('a'), embedding: vec(1, 0, 0, 0) },
+      { turnId: TurnId.from('b'), embedding: vec(0, 1, 0, 0) },
+    ]);
+    await repo.clearAll();
+    expect(await repo.search(vec(1, 0, 0, 0), 10)).toHaveLength(0);
+  });
 });

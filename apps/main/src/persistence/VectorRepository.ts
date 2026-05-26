@@ -4,7 +4,7 @@
    implementation is intentionally synchronous, so methods correctly lack await. */
 import type Database from 'better-sqlite3';
 import { TurnId } from '@asf/domain';
-import { DELETE_VEC_TURN, INSERT_VEC_TURN, SEARCH_VEC_TURNS } from './queries';
+import { DELETE_ALL_VEC_TURNS, DELETE_VEC_TURN, INSERT_VEC_TURN, SEARCH_VEC_TURNS } from './queries';
 
 export interface VectorSearchHit {
   readonly turnId: TurnId;
@@ -25,6 +25,7 @@ export interface VectorRepository {
   upsert(turnId: TurnId, embedding: Float32Array): Promise<void>;
   upsertBatch(items: ReadonlyArray<VectorUpsert>): Promise<void>;
   delete(turnId: TurnId): Promise<void>;
+  clearAll(): Promise<void>;
   search(queryVector: Float32Array, k: number): Promise<ReadonlyArray<VectorSearchHit>>;
 }
 
@@ -58,6 +59,10 @@ export class SqliteVecRepository implements VectorRepository {
 
   async delete(turnId: TurnId): Promise<void> {
     this.db.prepare(DELETE_VEC_TURN).run(turnId);
+  }
+
+  async clearAll(): Promise<void> {
+    this.db.prepare(DELETE_ALL_VEC_TURNS).run();
   }
 
   async search(queryVector: Float32Array, k: number): Promise<ReadonlyArray<VectorSearchHit>> {

@@ -72,4 +72,17 @@ describe('SourceRegistry', () => {
     expect(registry.findFor('/missing')).toBeNull();
     expect(registry.allWatchPaths()).toEqual(['/watch/claude-code', '/watch/cursor']);
   });
+
+  it('watchPathsFor returns only the requested tools, none for an empty set', () => {
+    const registry = new SourceRegistry([
+      fakeSource('claude-code', '/a'),
+      fakeSource('codex-cli', '/b'),
+      fakeSource('cursor', '/c'),
+    ]);
+    expect(registry.watchPathsFor(['claude-code', 'cursor'])).toEqual([
+      '/watch/claude-code',
+      '/watch/cursor',
+    ]);
+    expect(registry.watchPathsFor([])).toEqual([]);
+  });
 });

@@ -15,3 +15,19 @@ body {
   margin: 0;
   background: transparent;
 }
+
+/* Launcher rises in when the window shows — one subtle, orchestrated reveal. */
+@keyframes asf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.asf-launcher {
+  animation: asf-rise 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}

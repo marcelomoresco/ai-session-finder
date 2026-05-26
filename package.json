@@ -1,6 +1,6 @@
 {
   "name": "ai-session-finder",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.33.2",
@@ -15,7 +15,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "dist": "pnpm build && pnpm --filter @asf/main dist",
+    "dist:dir": "pnpm build && pnpm --filter @asf/main dist:dir"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

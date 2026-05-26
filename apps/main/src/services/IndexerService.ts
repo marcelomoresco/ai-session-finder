@@ -69,6 +69,15 @@ export class IndexerService {
     await worker.terminate();
   }
 
+  /** Respawns a running worker (e.g. after enabled-sources change); no-op when stopped. */
+  async restart(): Promise<void> {
+    if (!this.worker) {
+      return;
+    }
+    await this.stop();
+    this.start();
+  }
+
   private handleMessage(message: WorkerToMain): void {
     switch (message.type) {
       case 'ready':

@@ -21,6 +21,7 @@ const writer: SessionWriter = {
 
 const searchable: SearchableRepository = {
   search: () => Promise.resolve<ReadonlyArray<SearchResult>>([]),
+  browse: () => Promise.resolve<ReadonlyArray<SearchResult>>([]),
 };
 
 describe('repository interfaces', () => {
@@ -39,5 +40,6 @@ describe('repository interfaces', () => {
   it('SearchableRepository is implementable', async () => {
     const results = await searchable.search({ text: 'x', mode: 'quick', filters: {}, limit: 30 });
     expect(results).toEqual([]);
+    expect(await searchable.browse({}, 10)).toEqual([]);
   });
 });

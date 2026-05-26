@@ -8,6 +8,7 @@ import {
   TurnId,
   type FileOperation,
   type Session,
+  type SearchFilters,
   type SearchQuery,
   type SearchResult,
   type Tool,
@@ -20,15 +21,20 @@ import type { SessionWriter } from './SessionWriter';
 import type { SearchableRepository } from './SearchableRepository';
 import {
   COUNT_SESSIONS,
+  DELETE_ALL_FILES_TOUCHED,
+  DELETE_ALL_SESSIONS,
+  DELETE_ALL_TURNS,
   DELETE_SESSION,
   DELETE_TURNS_BY_SESSION,
   INSERT_FILE_TOUCHED,
   INSERT_TURN,
   SELECT_FILES_BY_TURN,
+  SELECT_LAST_INDEXED_AT,
   SELECT_SESSION_BY_ID,
   SELECT_SESSION_BY_TOOL_SOURCE,
   SELECT_TURNS_BY_SESSION,
   UPSERT_SESSION,
+  buildBrowseActiveQuery,
   buildListSessionsQuery,
   buildSearchQuery,
 } from './queries';
@@ -115,6 +121,11 @@ export class SQLiteRepository
     return row.count;
   }
 
+  async lastIndexedAt(): Promise<Date | null> {
+    const row = this.db.prepare(SELECT_LAST_INDEXED_AT).get() as { lastSync: number | null };
+    return row.lastSync === null ? null : new Date(row.lastSync);
+  }
+
   // ---- SessionWriter ----
 
   async upsert(session: Session, turns: ReadonlyArray<Turn>): Promise<void> {
@@ -138,6 +149,16 @@ export class SQLiteRepository
     this.db.prepare(DELETE_SESSION).run(id);
   }
 
+  /** Wipes the relational index (sessions/turns/files). Vectors are cleared separately. */
+  async clearAll(): Promise<void> {
+    const wipe = this.db.transaction(() => {
+      this.db.prepare(DELETE_ALL_FILES_TOUCHED).run();
+      this.db.prepare(DELETE_ALL_TURNS).run();
+      this.db.prepare(DELETE_ALL_SESSIONS).run();
+    });
+    wipe();
+  }
+
   async pruneOrphans(): Promise<number> {
     // Filled in once the indexer can detect deleted source files (later sprint).
     return 0;
@@ -151,6 +172,12 @@ export class SQLiteRepository
       return [];
     }
     const { sql, params } = buildSearchQuery(fts, query.filters, query.limit);
+    const rows = this.db.prepare(sql).all(params) as SearchRow[];
+    return rows.map((row) => this.mapRowToResult(row));
+  }
+
+  async browse(filters: SearchFilters, limit: number): Promise<ReadonlyArray<SearchResult>> {
+    const { sql, params } = buildBrowseActiveQuery(filters, limit);
     const rows = this.db.prepare(sql).all(params) as SearchRow[];
     return rows.map((row) => this.mapRowToResult(row));
   }

@@ -15,6 +15,11 @@ export const SearchQuerySchema = z.object({
   limit: z.number().int().positive().max(100).default(30),
 });
 
+export const BrowseActiveInputSchema = z.object({
+  filters: SearchFiltersSchema.default({}),
+  limit: z.number().int().positive().max(100).default(20),
+});
+
 export const SearchResultSchema = z.object({
   sessionId: z.string(),
   turnId: z.string(),

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SearchQuerySchema, SearchResultSchema } from './Search.schema';
+import { BrowseActiveInputSchema, SearchQuerySchema, SearchResultSchema } from './Search.schema';
 
 describe('SearchQuerySchema', () => {
   it('applies defaults for mode, filters, and limit', () => {
@@ -30,6 +30,24 @@ describe('SearchQuerySchema', () => {
 
   it('rejects an unknown tool in filters', () => {
     expect(() => SearchQuerySchema.parse({ text: 'x', filters: { tools: ['aider'] } })).toThrow();
+  });
+});
+
+describe('BrowseActiveInputSchema', () => {
+  it('applies defaults for filters and limit', () => {
+    const parsed = BrowseActiveInputSchema.parse({});
+    expect(parsed.limit).toBe(20);
+    expect(parsed.filters).toEqual({});
+  });
+
+  it('accepts a tools filter and explicit limit', () => {
+    const parsed = BrowseActiveInputSchema.parse({ filters: { tools: ['claude-code'] }, limit: 5 });
+    expect(parsed.filters.tools).toEqual(['claude-code']);
+    expect(parsed.limit).toBe(5);
+  });
+
+  it('rejects a limit over 100', () => {
+    expect(() => BrowseActiveInputSchema.parse({ limit: 101 })).toThrow();
   });
 });
 

@@ -1,11 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { SessionId, TurnId, type SearchQuery, type SearchResult } from '@asf/domain';
+import {
+  SessionId,
+  TurnId,
+  type SearchFilters,
+  type SearchQuery,
+  type SearchResult,
+} from '@asf/domain';
 import type { Embedder } from '@asf/indexer';
 import type { SearchableRepository } from '../persistence/SearchableRepository';
 import type { VectorRepository, VectorSearchHit } from '../persistence/VectorRepository';
 import { SilentLogger, type Logger } from '../observability/Logger';
 import { QueryParser } from './QueryParser';
-import { SearchService } from './SearchService';
+import { ACTIVE_WINDOW_MS, SearchService } from './SearchService';
 
 function result(turnId: string): SearchResult {
   return {
@@ -21,9 +27,14 @@ function result(turnId: string): SearchResult {
 
 class FakeRepo implements SearchableRepository {
   readonly calls: SearchQuery[] = [];
+  readonly browseCalls: Array<{ filters: SearchFilters; limit: number }> = [];
   constructor(private readonly results: ReadonlyArray<SearchResult> = []) {}
   search(query: SearchQuery): Promise<ReadonlyArray<SearchResult>> {
     this.calls.push(query);
+    return Promise.resolve(this.results);
+  }
+  browse(filters: SearchFilters, limit: number): Promise<ReadonlyArray<SearchResult>> {
+    this.browseCalls.push({ filters, limit });
     return Promise.resolve(this.results);
   }
 }
@@ -38,6 +49,9 @@ class FakeVectorRepo implements VectorRepository {
     return Promise.resolve();
   }
   delete(): Promise<void> {
+    return Promise.resolve();
+  }
+  clearAll(): Promise<void> {
     return Promise.resolve();
   }
   search(): Promise<ReadonlyArray<VectorSearchHit>> {
@@ -158,6 +172,23 @@ describe('SearchService', () => {
     expect(sent.filters.projectPath).toBe('/foo');
     expect(sent.filters.after).toEqual(new Date('2026-01-01'));
     expect(sent.filters.before).toEqual(new Date('2026-12-31'));
+  });
+
+  it('browseActive applies the active window and delegates to repo.browse', async () => {
+    const repo = new FakeRepo([result('t1')]);
+    const { service } = makeService({ repo });
+    const before = Date.now();
+
+    const results = await service.browseActive({ tools: ['claude-code'] }, 20);
+
+    expect(results.map((r) => r.turnId)).toEqual(['t1']);
+    expect(repo.browseCalls).toHaveLength(1);
+    const call = repo.browseCalls[0]!;
+    expect(call.filters.tools).toEqual(['claude-code']);
+    expect(call.limit).toBe(20);
+    const after = call.filters.after?.getTime() ?? 0;
+    expect(after).toBeGreaterThanOrEqual(before - ACTIVE_WINDOW_MS);
+    expect(after).toBeLessThanOrEqual(Date.now() - ACTIVE_WINDOW_MS);
   });
 
   it('logs only metadata (no turn content) when done', async () => {

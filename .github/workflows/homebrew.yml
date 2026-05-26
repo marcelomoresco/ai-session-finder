@@ -1,0 +1,19 @@
+name: Bump Homebrew Cask
+
+# After a GitHub Release is published, open a PR bumping the cask in the
+# personal tap (marcelomoresco/homebrew-tap). Submitting to the official
+# homebrew/cask is a separate, manual step (see docs/HOMEBREW.md).
+on:
+  release:
+    types: [released]
+
+jobs:
+  bump:
+    runs-on: macos-14
+    steps:
+      - uses: macauley/action-homebrew-bump-cask@v1
+        with:
+          token: ${{ secrets.HOMEBREW_TOKEN }} # PAT with repo scope on the tap
+          tap: marcelomoresco/homebrew-tap
+          cask: ai-session-finder
+          tag: ${{ github.event.release.tag_name }}

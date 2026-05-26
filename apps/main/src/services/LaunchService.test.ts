@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { SessionId, type Session, type Tool } from '@asf/domain';
 import type { SessionListFilter, SessionReader } from '../persistence/SessionReader';
 import { SilentLogger } from '../observability/Logger';
-import { LaunchService, type CommandRunner } from './LaunchService';
+import { LaunchService, type CommandRunner, type WindowLocator } from './LaunchService';
 
 function makeSession(tool: Tool, projectPath: string | null, sourceId = 'abc123'): Session {
   return {
@@ -47,9 +47,18 @@ class RecordingRunner implements CommandRunner {
   }
 }
 
-function serviceFor(session: Session | null) {
+class RecordingLocator implements WindowLocator {
+  readonly calls: Session[] = [];
+  constructor(private readonly focused: boolean) {}
+  focusRunning(session: Session): Promise<boolean> {
+    this.calls.push(session);
+    return Promise.resolve(this.focused);
+  }
+}
+
+function serviceFor(session: Session | null, locator?: WindowLocator) {
   const runner = new RecordingRunner();
-  const service = new LaunchService(new FakeReader(session), runner, new SilentLogger());
+  const service = new LaunchService(new FakeReader(session), runner, new SilentLogger(), locator);
   return { service, runner };
 }
 
@@ -58,6 +67,24 @@ describe('LaunchService.launch', () => {
     const { service, runner } = serviceFor(null);
     expect(await service.launch(SessionId.from('nope'))).toBe(false);
     expect(runner.calls).toHaveLength(0);
+  });
+
+  it('focuses an already-running session window instead of opening a terminal', async () => {
+    const locator = new RecordingLocator(true);
+    const { service, runner } = serviceFor(makeSession('claude-code', '/Users/me/repo'), locator);
+
+    expect(await service.launch(SessionId.from('s1'))).toBe(true);
+    expect(locator.calls).toHaveLength(1);
+    expect(runner.calls).toHaveLength(0);
+  });
+
+  it('falls back to resume when no running window is found', async () => {
+    const locator = new RecordingLocator(false);
+    const { service, runner } = serviceFor(makeSession('claude-code', '/Users/me/repo'), locator);
+
+    await service.launch(SessionId.from('s1'));
+    expect(locator.calls).toHaveLength(1);
+    expect(runner.calls[0]!.command).toBe('osascript');
   });
 
   it('opens Terminal running the claude resume command in the project dir', async () => {

@@ -14,6 +14,28 @@ A fast, open-source macOS launcher for searching across your **Claude Code**, **
 
 Your AI coding history is scattered across tools, each with its own log format. AI Session Finder indexes them locally and gives you a single Spotlight-style search over everything: full-text and semantic, fully on-device.
 
+## Install
+
+> macOS 12+ (Apple Silicon or Intel). The MVP ships **unsigned** — see the Gatekeeper note below.
+
+**Homebrew (recommended):**
+
+```bash
+brew install --cask marcelomoresco/tap/ai-session-finder
+```
+
+**Or grab the DMG** from [Releases](https://github.com/marcelomoresco/ai-session-finder/releases), open it, and drag the app into Applications.
+
+Because the app isn't signed with an Apple Developer ID yet, the **first launch** needs **Right-click → Open** → **Open** (Homebrew installs clear the quarantine flag for you). Then press **⌘+Shift+Space** anywhere to search.
+
+## Features
+
+- 🔍 One search box over **Claude Code**, **Codex CLI**, and **Cursor** sessions
+- ⚡ Full-text (FTS5) **and** semantic search — all on-device, zero telemetry
+- ⌘+Shift+Space global launcher, menu-bar tray, frameless preview
+- ↩️ Resume any session in its original tool
+- 🔁 Auto-update from GitHub Releases (asks before installing)
+
 ## Stack
 
 - **Electron** + **TypeScript** (strict) + **React 19**
@@ -36,7 +58,7 @@ packages/
 
 ## Quick start
 
-Requires **Node 20+** and **pnpm 9+** (`npm i -g pnpm`).
+Requires **Node 20+** and **pnpm 10+** (`npm i -g pnpm`).
 
 ```bash
 pnpm install     # install workspace deps
@@ -55,14 +77,14 @@ Development is organized into eight sprints (00 → 07). The plans live in
 
 | Sprint | Theme                | Status         |
 | ------ | -------------------- | -------------- |
-| 00     | Foundation (setup)   | 🟢 in progress |
-| 01     | Domain & Persistence | ⬜             |
-| 02     | Source Adapters      | ⬜             |
-| 03     | Indexer Pipeline     | ⬜             |
-| 04     | Services & IPC       | ⬜             |
-| 05     | UI Launcher          | ⬜             |
-| 06     | macOS Integration    | ⬜             |
-| 07     | Release              | ⬜             |
+| 00     | Foundation (setup)   | ✅ done        |
+| 01     | Domain & Persistence | ✅ done        |
+| 02     | Source Adapters      | ✅ done        |
+| 03     | Indexer Pipeline     | ✅ done        |
+| 04     | Services & IPC       | ✅ done        |
+| 05     | UI Launcher          | ✅ done        |
+| 06     | macOS Integration    | ✅ done        |
+| 07     | Release              | 🟢 in progress |
 
 ## Contributing
 

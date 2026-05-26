@@ -1,0 +1,48 @@
+appId: dev.marcelomoresco.ai-session-finder
+productName: AI Session Finder
+# Space-free asset names keep release URLs and the Homebrew cask clean.
+artifactName: ai-session-finder-${version}-${arch}.${ext}
+copyright: Copyright © 2026 AI Session Finder contributors
+asar: true
+
+directories:
+  output: release
+  buildResources: resources
+
+files:
+  - dist/**
+  - '!**/*.{md,txt,map}'
+  - '!**/*.{test,spec}.*'
+  - '!**/__tests__/**'
+
+mac:
+  category: public.app-category.developer-tools
+  icon: resources/icon.icns
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+  # MVP ships UNSIGNED (no $99/yr Apple Developer ID). identity:null still
+  # ad-hoc signs (required for arm64 to launch at all); users bypass Gatekeeper
+  # the first time via Right-click → Open (documented in README + docs).
+  identity: null
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.plist
+  extendInfo:
+    LSUIElement: 1 # accessory app: menu-bar only, no Dock icon
+
+dmg:
+  sign: false
+
+extraResources:
+  - from: resources/tray-iconTemplate.png
+    to: tray-iconTemplate.png
+  - from: resources/tray-iconTemplate@2x.png
+    to: tray-iconTemplate@2x.png
+
+publish:
+  - provider: github
+    owner: marcelomoresco
+    repo: ai-session-finder

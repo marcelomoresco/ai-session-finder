@@ -13,7 +13,16 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin({ exclude: ['@asf/domain', '@asf/contracts', '@asf/indexer'] })],
     build: {
       outDir: resolve(__dirname, 'dist/main'),
-      lib: { entry: resolve(__dirname, 'src/index.ts') },
+      // Two entries: the app entry plus the indexer worker, which index.ts spawns
+      // by path via `new Worker(join(__dirname, 'worker.js'))`. Without emitting
+      // worker.js the indexer thread can't start in a packaged build.
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'src/index.ts'),
+          worker: resolve(__dirname, 'src/services/worker.ts'),
+        },
+        output: { entryFileNames: '[name].js' },
+      },
     },
   },
   preload: {
@@ -30,7 +39,9 @@ export default defineConfig({
       alias: { '@': resolve(rendererRoot, 'src') },
     },
     build: {
-      outDir: resolve(rendererRoot, 'dist'),
+      // Output into the main app's dist so a packaged build is self-contained
+      // under apps/main/dist (index.html loaded relative to dist/main).
+      outDir: resolve(__dirname, 'dist/renderer'),
       emptyOutDir: true,
       rollupOptions: {
         input: resolve(rendererRoot, 'index.html'),

@@ -12,3 +12,4 @@ export type SessionDetail = NonNullable<RouterOutputs['session']['get']>;
 export type SessionSummary = RouterOutputs['session']['list'][number];
 export type Turn = SessionDetail['turns'][number];
 export type ResumeCommand = NonNullable<RouterOutputs['resume']['buildCommand']>;
+export type AppSettings = RouterOutputs['settings']['get'];

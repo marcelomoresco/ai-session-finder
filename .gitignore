@@ -27,3 +27,10 @@ pnpm-debug.log*
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Build output (electron-builder)
+apps/main/release/
+
+# Node / V8 compile caches
+node-compile-cache/
+v8-compile-cache-*/

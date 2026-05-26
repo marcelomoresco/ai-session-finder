@@ -85,11 +85,38 @@ const RESUME: ResumeCommand = {
 };
 
 export function installDevTrpcMock(): void {
-  const invoke = (path: string): Promise<unknown> => {
+  let settings: Record<string, unknown> = {
+    launcherShortcut: 'CommandOrControl+Shift+Space',
+    theme: 'system',
+    semanticSearchEnabled: true,
+    autoStartOnLogin: false,
+    onboardingCompleted: true,
+    enabledSources: ['claude-code', 'codex-cli', 'cursor'],
+    encryptDatabase: false,
+  };
+
+  const invoke = (path: string, _type: 'query' | 'mutation', input: unknown): Promise<unknown> => {
     if (path === 'search.query') return Promise.resolve(SAMPLE_RESULTS);
+    if (path === 'search.browseActive') {
+      const tools = (input as { filters?: { tools?: string[] } }).filters?.tools;
+      return Promise.resolve(
+        tools ? SAMPLE_RESULTS.filter((r) => tools.includes(r.tool)) : SAMPLE_RESULTS,
+      );
+    }
     if (path === 'session.get') return Promise.resolve(SAMPLE_DETAIL);
     if (path === 'resume.buildCommand') return Promise.resolve(RESUME);
     if (path === 'resume.run') return Promise.resolve(true); // browser can't launch; demo only
+    if (path === 'settings.get') return Promise.resolve(settings);
+    if (path === 'settings.update') {
+      settings = { ...settings, ...(input as Record<string, unknown>) };
+      return Promise.resolve(settings);
+    }
+    if (path === 'permissions.fullDiskAccess') return Promise.resolve(true);
+    if (path === 'indexer.stats')
+      return Promise.resolve({ indexed: SAMPLE_RESULTS.length, lastSync: new Date(Date.now() - HOUR) });
+    if (path === 'system.info') return Promise.resolve({ version: '0.0.0-dev', platform: 'darwin' });
+    if (path === 'indexer.fullReindex' || path === 'indexer.clearIndex')
+      return Promise.resolve(undefined);
     return Promise.resolve(null);
   };
   Object.defineProperty(window, 'trpc', { configurable: true, value: { invoke } });

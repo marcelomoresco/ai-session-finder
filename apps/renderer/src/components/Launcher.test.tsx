@@ -61,6 +61,49 @@ describe('Launcher', () => {
     expect(screen.getAllByText('Claude').length).toBeGreaterThanOrEqual(2);
   });
 
+  it('browses active Claude sessions on open, before anything is typed', async () => {
+    const invoke = vi.fn().mockResolvedValue(results);
+    setInvoke(invoke);
+    renderLauncher();
+
+    await waitFor(() => expect(screen.getByText('scheduler')).toBeInTheDocument());
+    expect(invoke).toHaveBeenCalledWith(
+      'search.browseActive',
+      'query',
+      expect.objectContaining({ filters: { tools: ['claude-code'] } }),
+    );
+  });
+
+  it('shows an empty-state when no sessions are active on open', async () => {
+    setInvoke(vi.fn().mockResolvedValue([]));
+    renderLauncher();
+
+    await waitFor(() =>
+      expect(screen.getByText(/no active sessions/i)).toBeInTheDocument(),
+    );
+  });
+
+  it('opens exactly one session per click, never the whole list', async () => {
+    const many: SearchResult[] = Array.from({ length: 5 }, (_, i) => ({
+      sessionId: `s${i}`,
+      turnId: `t${i}`,
+      snippet: `snippet ${i}`,
+      projectName: `proj-${i}`,
+      tool: 'claude-code',
+      lastActivityAt: new Date(),
+      score: 1,
+    }));
+    setInvoke(vi.fn().mockResolvedValue(many));
+    const user = userEvent.setup();
+    const { onOpen } = renderLauncher();
+
+    await waitFor(() => expect(screen.getByText('proj-2')).toBeInTheDocument());
+    await user.click(screen.getByText('proj-2'));
+
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ turnId: 't2' }));
+  });
+
   it('clears the query on Escape', async () => {
     setInvoke(vi.fn().mockResolvedValue([]));
     const user = userEvent.setup();

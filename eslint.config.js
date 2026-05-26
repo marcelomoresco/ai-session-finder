@@ -89,9 +89,10 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
 
-  // CLI scripts are allowed to write to stdout.
+  // CLI scripts run under Node and may write to stdout.
   {
     files: ['**/scripts/**', '**/*.cli.{ts,tsx}'],
+    languageOptions: { globals: { ...globals.node } },
     rules: { 'no-console': 'off' },
   },
 );

@@ -44,6 +44,16 @@ describe('appRouter (integration, in-memory SQLite)', () => {
     await app.close();
   });
 
+  it('search.browseActive reaches the real service stack', async () => {
+    const { app, ctx } = setup();
+    const results = await caller(ctx).search.browseActive({
+      filters: { tools: ['claude-code'] },
+      limit: 10,
+    });
+    expect(results).toEqual([]);
+    await app.close();
+  });
+
   it('session.list returns [] on an empty database', async () => {
     const { app, ctx } = setup();
     expect(await caller(ctx).session.list({})).toEqual([]);
@@ -65,6 +75,22 @@ describe('appRouter (integration, in-memory SQLite)', () => {
   it('resume.run returns false for an unknown session (launches nothing)', async () => {
     const { app, ctx } = setup();
     expect(await caller(ctx).resume.run({ sessionId: 'missing' })).toBe(false);
+    await app.close();
+  });
+
+  it('settings.get returns defaults; settings.update persists a change', async () => {
+    const { app, ctx } = setup();
+    expect((await caller(ctx).settings.get()).theme).toBe('system');
+
+    const updated = await caller(ctx).settings.update({ theme: 'dark', autoStartOnLogin: true });
+    expect(updated.theme).toBe('dark');
+    expect((await caller(ctx).settings.get()).theme).toBe('dark');
+    await app.close();
+  });
+
+  it('permissions.fullDiskAccess returns a boolean', async () => {
+    const { app, ctx } = setup();
+    expect(typeof (await caller(ctx).permissions.fullDiskAccess())).toBe('boolean');
     await app.close();
   });
 
@@ -146,6 +172,27 @@ describe('appRouter (integration, in-memory SQLite)', () => {
     if (!res.ok) {
       expect(res.error.code).toBe('INTERNAL_SERVER_ERROR');
     }
+    await app.close();
+  });
+
+  it('indexer.stats reports an empty index initially', async () => {
+    const { app, ctx } = setup();
+    expect(await caller(ctx).indexer.stats()).toEqual({ indexed: 0, lastSync: null });
+    await app.close();
+  });
+
+  it('indexer.clearIndex resolves and leaves the index empty', async () => {
+    const { app, ctx } = setup();
+    await caller(ctx).indexer.clearIndex();
+    expect((await caller(ctx).indexer.stats()).indexed).toBe(0);
+    await app.close();
+  });
+
+  it('system.info returns the app version and platform as strings', async () => {
+    const { app, ctx } = setup();
+    const info = await caller(ctx).system.info();
+    expect(typeof info.version).toBe('string');
+    expect(typeof info.platform).toBe('string');
     await app.close();
   });
 });

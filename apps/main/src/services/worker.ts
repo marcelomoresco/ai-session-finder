@@ -11,6 +11,7 @@ import {
   type Logger,
   type SourceRegistry,
 } from '@asf/indexer';
+import type { Tool } from '@asf/domain';
 import { createDatabase } from '../persistence/createDatabase';
 import { SQLiteRepository } from '../persistence/SQLiteRepository';
 import { SqliteVecRepository } from '../persistence/VectorRepository';
@@ -29,6 +30,8 @@ export interface BuildIndexerOptions {
   readonly registry?: SourceRegistry;
   /** Defaults to LocalEmbedder when semantic search is available, else NoopEmbedder. */
   readonly embedder?: Embedder;
+  /** Tools to watch. When omitted, every source is watched. */
+  readonly enabledSources?: ReadonlyArray<Tool>;
 }
 
 export interface Indexer {
@@ -62,7 +65,9 @@ export function buildIndexer(opts: BuildIndexerOptions): Indexer {
     logger: opts.logger,
     clock: () => new Date(),
   });
-  const watcher = new FsWatcher(registry.allWatchPaths());
+  const watcher = new FsWatcher(
+    opts.enabledSources ? registry.watchPathsFor(opts.enabledSources) : registry.allWatchPaths(),
+  );
 
   return {
     pipeline,
@@ -127,6 +132,13 @@ async function restart(watcher: FsWatcher): Promise<void> {
 
 // --- Worker-thread entry: runs only inside a Worker (parentPort present). ---
 if (parentPort) {
-  const { userDataDir } = workerData as { userDataDir: string };
-  runWorker(parentPort, { userDataDir, logger: new ConsoleLogger() });
+  const { userDataDir, enabledSources } = workerData as {
+    userDataDir: string;
+    enabledSources?: ReadonlyArray<Tool>;
+  };
+  runWorker(parentPort, {
+    userDataDir,
+    logger: new ConsoleLogger(),
+    ...(enabledSources ? { enabledSources } : {}),
+  });
 }

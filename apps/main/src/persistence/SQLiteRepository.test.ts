@@ -138,6 +138,33 @@ describe('SQLiteRepository — read/write', () => {
   });
 });
 
+describe('SQLiteRepository — clearAll & lastIndexedAt', () => {
+  it('reports the max indexed_at as lastSync, null when empty', async () => {
+    expect(await repo.lastIndexedAt()).toBeNull();
+    await repo.upsert(
+      makeSession({ id: SessionId.from('a'), sourceId: 'a', indexedAt: new Date(3000) }),
+      [],
+    );
+    await repo.upsert(
+      makeSession({ id: SessionId.from('b'), sourceId: 'b', indexedAt: new Date(7000) }),
+      [],
+    );
+    expect((await repo.lastIndexedAt())?.getTime()).toBe(7000);
+  });
+
+  it('clearAll empties sessions, turns and files_touched', async () => {
+    await repo.upsert(makeSession(), [
+      makeTurn({ id: TurnId.from('t1'), filesTouched: [{ path: '/x', operation: 'edit' }] }),
+    ]);
+    await repo.clearAll();
+    expect(await repo.countAll()).toBe(0);
+    const turns = db.prepare('SELECT COUNT(*) AS c FROM turns').get() as { c: number };
+    const files = db.prepare('SELECT COUNT(*) AS c FROM files_touched').get() as { c: number };
+    expect(turns.c).toBe(0);
+    expect(files.c).toBe(0);
+  });
+});
+
 describe('SQLiteRepository — upsert atomicity', () => {
   it('rolls back, preserving prior state, when turns violate a constraint', async () => {
     await repo.upsert(makeSession({ turnCount: 1 }), [
@@ -260,6 +287,52 @@ describe('SQLiteRepository — list & search', () => {
       limit: 10,
     });
     expect(results.map((r) => r.turnId)).toEqual(['tc']);
+  });
+
+  it('browses claude sessions within the active window, newest first', async () => {
+    const rows = await repo.browse({ tools: ['claude-code'], after: new Date(50) }, 10);
+    expect(rows.map((r) => r.sessionId)).toEqual(['c', 'a']);
+    expect(rows.every((r) => r.tool === 'claude-code')).toBe(true);
+  });
+
+  it('browse excludes sessions older than the window', async () => {
+    const rows = await repo.browse({ tools: ['claude-code'], after: new Date(150) }, 10);
+    expect(rows.map((r) => r.sessionId)).toEqual(['c']);
+  });
+
+  it('browse returns one row per session using the latest turn', async () => {
+    await repo.upsert(
+      makeSession({
+        id: SessionId.from('d'),
+        sourceId: 'd',
+        tool: 'claude-code',
+        lastActivityAt: new Date(400),
+      }),
+      [
+        makeTurn({
+          id: TurnId.from('d0'),
+          sessionId: SessionId.from('d'),
+          index: 0,
+          contentText: 'first',
+        }),
+        makeTurn({
+          id: TurnId.from('d1'),
+          sessionId: SessionId.from('d'),
+          index: 1,
+          contentText: 'latest',
+        }),
+      ],
+    );
+    const rows = await repo.browse({ tools: ['claude-code'], after: new Date(50) }, 10);
+    const d = rows.filter((r) => r.sessionId === 'd');
+    expect(d).toHaveLength(1);
+    expect(d[0]?.turnId).toBe('d1');
+  });
+
+  it('browse respects the limit', async () => {
+    const rows = await repo.browse({ tools: ['claude-code'], after: new Date(0) }, 1);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.sessionId).toBe('c');
   });
 
   it('paginates list with limit and offset', async () => {

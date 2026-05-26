@@ -1,15 +1,20 @@
 import { createHashRouter, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Launcher } from './components/Launcher';
 import { PreviewPane } from './components/PreviewPane';
+import { SettingsPage } from './pages/SettingsPage';
+import { OnboardingPage } from './pages/OnboardingPage';
+import { trpc } from './lib/trpc';
 import type { SearchResult } from './lib/types';
 
 function LauncherScreen() {
-  const navigate = useNavigate();
+  const resume = trpc.resume.run.useMutation();
   const onOpen = (result: SearchResult): void => {
-    void navigate(`/sessions/${result.sessionId}?turn=${result.turnId}`);
+    // Reopen the session in its own tool at its original directory (`claude
+    // --resume` etc.). The launcher hides on blur once the terminal takes focus.
+    resume.mutate({ sessionId: result.sessionId });
   };
   return (
-    <div className="flex min-h-screen items-start justify-center bg-transparent px-4 pt-[12vh]">
+    <div className="flex min-h-screen items-start justify-center bg-transparent px-4 pt-[8vh]">
       <Launcher onOpen={onOpen} />
     </div>
   );
@@ -27,12 +32,22 @@ function SessionScreen() {
   );
 }
 
-function SettingsScreen() {
-  return <div className="p-8 text-sm text-zinc-400">Settings — coming soon.</div>;
+function OnboardingScreen() {
+  const navigate = useNavigate();
+  const update = trpc.settings.update.useMutation();
+  return (
+    <OnboardingPage
+      onComplete={() => {
+        update.mutate({ onboardingCompleted: true });
+        void navigate('/');
+      }}
+    />
+  );
 }
 
 export const router = createHashRouter([
   { path: '/', element: <LauncherScreen /> },
   { path: '/sessions/:id', element: <SessionScreen /> },
-  { path: '/settings', element: <SettingsScreen /> },
+  { path: '/settings', element: <SettingsPage /> },
+  { path: '/onboarding', element: <OnboardingScreen /> },
 ]);

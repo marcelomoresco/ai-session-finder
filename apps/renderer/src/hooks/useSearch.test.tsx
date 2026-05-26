@@ -30,14 +30,33 @@ describe('useSearch', () => {
     queryClient.clear();
   });
 
-  it('does not search for an empty query', async () => {
+  it('browses active sessions for an empty query', async () => {
+    const invoke = vi.fn().mockResolvedValue(oneResult);
+    setInvoke(invoke);
+
+    const { result } = renderHook(
+      () => useSearch({ query: '', filters: { tools: ['claude-code'] } }),
+      { wrapper },
+    );
+
+    await waitFor(() =>
+      expect(invoke).toHaveBeenCalledWith(
+        'search.browseActive',
+        'query',
+        expect.objectContaining({ filters: { tools: ['claude-code'] }, limit: 30 }),
+      ),
+    );
+    await waitFor(() => expect(result.current.results).toHaveLength(1));
+  });
+
+  it('does not run a keyword search for an empty query', async () => {
     const invoke = vi.fn().mockResolvedValue([]);
     setInvoke(invoke);
 
     renderHook(() => useSearch({ query: '' }), { wrapper });
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    expect(invoke).not.toHaveBeenCalled();
+    expect(invoke).not.toHaveBeenCalledWith('search.query', expect.anything(), expect.anything());
   });
 
   it('runs a quick keyword search after the debounce and returns results', async () => {

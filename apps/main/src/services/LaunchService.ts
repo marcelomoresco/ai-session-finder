@@ -1,10 +1,20 @@
-import type { SessionId } from '@asf/domain';
+import type { Session, SessionId } from '@asf/domain';
 import type { SessionReader } from '../persistence/SessionReader';
 import type { Logger } from '../observability/Logger';
 
 /** Runs an external command (no shell). The real impl uses child_process.execFile. */
 export interface CommandRunner {
   run(command: string, args: ReadonlyArray<string>): Promise<void>;
+}
+
+/**
+ * Focuses the window where a session is already running (its terminal tab or
+ * editor window) instead of launching a new one. Platform-specific; left absent
+ * on non-macOS so launch always falls back to resume.
+ */
+export interface WindowLocator {
+  /** Brings the running session's window to the front. False if not running or not focusable. */
+  focusRunning(session: Session): Promise<boolean>;
 }
 
 /** Wraps a value in single quotes for safe use inside a shell command string. */
@@ -31,12 +41,20 @@ export class LaunchService {
     private readonly reader: SessionReader,
     private readonly runner: CommandRunner,
     private readonly logger: Logger,
+    private readonly locator?: WindowLocator,
   ) {}
 
   async launch(sessionId: SessionId): Promise<boolean> {
     const session = await this.reader.findById(sessionId);
     if (!session) {
       return false;
+    }
+
+    // Prefer focusing the window where the session is already running; only
+    // launch a fresh terminal/app when it isn't (avoids spawning duplicates).
+    if (this.locator && (await this.locator.focusRunning(session))) {
+      this.logger.info({ sessionId, tool: session.tool }, 'launch.focused');
+      return true;
     }
 
     if (session.tool === 'cursor') {

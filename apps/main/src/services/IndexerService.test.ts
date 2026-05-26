@@ -100,4 +100,16 @@ describe('IndexerService', () => {
     const service = new IndexerService(() => new FakeWorker(), {}, new SilentLogger());
     await expect(service.stop()).resolves.toBeUndefined();
   });
+
+  it('restart respawns a running worker and is a no-op when not running', async () => {
+    const factory = vi.fn(() => new FakeWorker());
+    const service = new IndexerService(factory, {}, new SilentLogger());
+
+    await service.restart();
+    expect(factory).toHaveBeenCalledTimes(0);
+
+    service.start();
+    await service.restart();
+    expect(factory).toHaveBeenCalledTimes(2);
+  });
 });

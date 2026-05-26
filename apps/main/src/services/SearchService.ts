@@ -17,6 +17,9 @@ export interface SearchServiceDeps {
 
 const CANDIDATE_LIMIT = 50;
 
+/** A session counts as "active" when its last activity falls within this window. */
+export const ACTIVE_WINDOW_MS = 15 * 60_000;
+
 /**
  * Application search. `quick` runs keyword (FTS) only; `smart` additionally runs
  * vector search and fuses the two rankings (RRF). Inline operators in the query
@@ -39,6 +42,22 @@ export class SearchService {
     }
 
     return this.smartSearch(enhanced, this.deps.vectorRepo, start);
+  }
+
+  /**
+   * Lists sessions active within {@link ACTIVE_WINDOW_MS} that match `filters`,
+   * newest first. No text query and no embeddings — a plain recency browse used
+   * to populate the launcher when nothing has been typed yet.
+   */
+  async browseActive(
+    filters: SearchFilters,
+    limit: number,
+  ): Promise<ReadonlyArray<SearchResult>> {
+    const start = performance.now();
+    const active: SearchFilters = { ...filters, after: new Date(Date.now() - ACTIVE_WINDOW_MS) };
+    const results = await this.deps.repo.browse(active, limit);
+    this.logElapsed('browse', start, results.length);
+    return results;
   }
 
   /** Merges parsed operators over the structured filters (operators win). */
