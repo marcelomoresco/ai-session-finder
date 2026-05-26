@@ -41,6 +41,8 @@ extraResources:
     to: tray-iconTemplate.png
   - from: resources/tray-iconTemplate@2x.png
     to: tray-iconTemplate@2x.png
+  - from: resources/icon.png
+    to: icon.png
 
 publish:
   - provider: github

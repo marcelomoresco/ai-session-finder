@@ -140,6 +140,12 @@ app
     }
     bootstrap();
     getWindow();
+    // Surface the launcher on a manual launch so the app is visible right away
+    // (menu-bar accessory has no Dock icon); stay hidden when macOS auto-starts
+    // it at login.
+    if (!app.getLoginItemSettings().wasOpenedAtLogin) {
+      showLauncher();
+    }
   })
   .catch((error: unknown) => {
     // eslint-disable-next-line no-console -- last-resort logging for a fatal init failure
@@ -158,3 +164,7 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+// Reopening the app (Finder / Spotlight / Launchpad / `open -a`) surfaces the
+// launcher — a reliable entry point when the menu-bar icon is hard to spot.
+app.on('activate', () => showLauncher());
